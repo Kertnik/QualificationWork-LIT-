@@ -27,9 +27,9 @@ namespace TgBot.Models
                 .Property(b => b.Day)
                 .HasDefaultValue(DateTime.Today);
 
-        /*    modelBuilder.Entity<CurPath>().HasOne(b => b.Driver).WithMany();
-            modelBuilder.Entity<CurPath>()
-                .HasOne(b => b.Path)
+        /*    modelBuilder.Entity<CurRoute>().HasOne(b => b.Driver).WithMany();
+            modelBuilder.Entity<CurRoute>()
+                .HasOne(b => b.Route)
                 .WithMany();*/
         }
     }

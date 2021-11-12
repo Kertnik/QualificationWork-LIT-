@@ -14,10 +14,10 @@ namespace TgBot.Models
     {
         public Driver(string driverId, string name)
         {
-            MyPaths = new List<CurRoute>();
+            MyRoutes = new List<CurRoute>();
             foreach (var variable in GeneralContext.MyCurRoutes)
                 if (variable.Driver.DriverId == DriverId)
-                    MyPaths.Add(variable);
+                    MyRoutes.Add(variable);
             DriverId = driverId;
             Name = name;
         }
@@ -39,7 +39,7 @@ namespace TgBot.Models
             private set => OrdinalRouteId = value?.RouteId;
         }
 
-        public List<CurRoute> MyPaths { get; set; }
+        public List<CurRoute> MyRoutes { get; set; }
 
 
         public new bool Equals(object? x, object? y)
@@ -69,9 +69,9 @@ namespace TgBot.Models
 
         public void NewRoute()
         {
-            if (MyPaths.Last().IsFinished())
+            if (MyRoutes.Last().IsFinished())
             {
-                MyPaths.Add(new CurRoute(DriverId, OrdinalRoute.RouteId, DateTime.Today));
+                MyRoutes.Add(new CurRoute(DriverId, OrdinalRoute.RouteId, DateTime.Today));
                 GeneralContext.SaveChangesAsync();
             }
             else
@@ -81,7 +81,7 @@ namespace TgBot.Models
         }
 
 
-        public void SetPath(Route route)
+        public void SetRoute(Route route)
         {
             foreach (var variable in GeneralContext.MyRoutes)
                 if (variable == route)
@@ -90,7 +90,7 @@ namespace TgBot.Models
                     return;
                 }
 
-            throw new ArgumentException("Bad path id");
+            throw new ArgumentException("Bad Route id");
         }
 
         public override string ToString()

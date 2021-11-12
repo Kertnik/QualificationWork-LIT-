@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TgBot.Migrations
 {
-    public partial class InitialMigrate : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -47,7 +47,7 @@ namespace TgBot.Migrations
                     RecordID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DriverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PathId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RouteId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Day = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2021, 11, 12, 0, 0, 0, 0, DateTimeKind.Local))
                 },
                 constraints: table =>

@@ -12,8 +12,8 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    [Migration("20211112041715_InitialMigrate")]
-    partial class InitialMigrate
+    [Migration("20211112043614_test")]
+    partial class test
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,7 +41,7 @@ namespace TgBot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PathId")
+                    b.Property<string>("RouteId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -91,7 +91,7 @@ namespace TgBot.Migrations
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
                     b.HasOne("TgBot.Models.Driver", null)
-                        .WithMany("MyPaths")
+                        .WithMany("MyRoutes")
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -108,7 +108,7 @@ namespace TgBot.Migrations
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
                 {
-                    b.Navigation("MyPaths");
+                    b.Navigation("MyRoutes");
                 });
 #pragma warning restore 612, 618
         }

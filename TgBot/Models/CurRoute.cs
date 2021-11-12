@@ -35,7 +35,7 @@ namespace TgBot.Models
         }
       [BackingField("Route")]
       
-       public  string PathId    {
+       public  string RouteId    {
             get => Route.RouteId;
             set=>Route=GeneralContext.MyRoutes.Find(value);
         }
@@ -45,10 +45,10 @@ namespace TgBot.Models
         public Driver Driver;
       
 
-        public CurRoute(string driverId, string pathId, DateTime day)
+        public CurRoute(string driverId, string RouteId, DateTime day)
         {
             DriverId = driverId;
-            PathId=pathId;
+            RouteId=RouteId;
             Day = day;
         }
 
