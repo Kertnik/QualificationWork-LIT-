@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
+using TgBot.Models;
 using TgBot.Services;
-
+using static TgBot.Program;
 namespace TgBot
 {
     public class Startup
@@ -21,6 +23,12 @@ namespace TgBot
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DriverContext>(options =>
+               options.UseSqlServer(Configuration.GetConnectionString("TgDB")));
+            GeneralContext = new DriverContext(new DbContextOptionsBuilder<DriverContext>()
+                .UseSqlServer(Configuration.GetConnectionString("TgDB")).Options);
+
+            GeneralContext.Database.EnsureCreated();
 
             // There are several strategies for completing asynchronous tasks during startup.
             // Some of them could be found in this article https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-part-1/

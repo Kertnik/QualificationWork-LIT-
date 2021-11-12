@@ -14,28 +14,32 @@ namespace TgBot.Models
     {
         public Driver(string driverId, string name)
         {
-            MyPaths = new List<CurPath>();
-            foreach (var variable in GeneralContext.CurPaths)
+            MyPaths = new List<CurRoute>();
+            foreach (var variable in GeneralContext.MyCurRoutes)
                 if (variable.Driver.DriverId == DriverId)
                     MyPaths.Add(variable);
             DriverId = driverId;
             Name = name;
         }
 
-        [Key] public string DriverId { get; }
-
-        [Column(TypeName = "nvarchar(256)")] public string Name { get; }
-
-        [Column(TypeName = "nvarchar(256)")] string? OrdinalPathId { get; set; }
-
-        [BackingField("OrdinalPathId")]
-        public Path? OrdinalPath
-        {
-            get => GeneralContext.Paths.Find(OrdinalPathId);
-            private set => OrdinalPathId = value?.PathId;
+        [Key][Required] public string DriverId
+        { get;
+            private set;
         }
 
-        public List<CurPath> MyPaths { get; set; }
+        [Column(TypeName = "nvarchar(256)")][Required]
+        public string Name { get; private set; }
+
+        [Column(TypeName = "nvarchar(256)")] string? OrdinalRouteId { get; set; }
+
+        [BackingField("OrdinalRouteId")]
+        public Route? OrdinalRoute
+        {
+            get => GeneralContext.MyRoutes.Find(OrdinalRouteId);
+            private set => OrdinalRouteId = value?.RouteId;
+        }
+
+        public List<CurRoute> MyPaths { get; set; }
 
 
         public new bool Equals(object? x, object? y)
@@ -67,7 +71,7 @@ namespace TgBot.Models
         {
             if (MyPaths.Last().IsFinished())
             {
-                MyPaths.Add(new CurPath(this, OrdinalPath, DateTime.Today));
+                MyPaths.Add(new CurRoute(DriverId, OrdinalRoute.RouteId, DateTime.Today));
                 GeneralContext.SaveChangesAsync();
             }
             else
@@ -77,12 +81,12 @@ namespace TgBot.Models
         }
 
 
-        public void SetPath(Path path)
+        public void SetPath(Route route)
         {
-            foreach (var variable in GeneralContext.Paths)
-                if (variable == path)
+            foreach (var variable in GeneralContext.MyRoutes)
+                if (variable == route)
                 {
-                    OrdinalPath = path;
+                    OrdinalRoute = route;
                     return;
                 }
 

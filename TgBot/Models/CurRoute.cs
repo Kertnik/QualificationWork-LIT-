@@ -8,7 +8,7 @@ using static TgBot.Program;
 
 namespace TgBot.Models
 {
-    public class CurPath : IDisposable
+    public class CurRoute : IDisposable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -26,14 +26,29 @@ namespace TgBot.Models
 
 
         public DateTime Day;
-        public Driver Driver { get; set; }
 
-        public Path Path { get; set; }
-
-        public CurPath(Driver driver, Path path, DateTime day)
+      [BackingField("Driver")]
+      public   string DriverId
         {
-            Driver = driver;
-            Path = path;
+            get => Driver.DriverId;
+            set=>Driver=GeneralContext.MyDrivers.Find(value);
+        }
+      [BackingField("Route")]
+      
+       public  string PathId    {
+            get => Route.RouteId;
+            set=>Route=GeneralContext.MyRoutes.Find(value);
+        }
+
+         public Route Route;
+
+        public Driver Driver;
+      
+
+        public CurRoute(string driverId, string pathId, DateTime day)
+        {
+            DriverId = driverId;
+            PathId=pathId;
             Day = day;
         }
 
@@ -45,14 +60,14 @@ namespace TgBot.Models
 
         public bool IsFinished()
         {
-            return Path.NumberOfStops == TimeOfStops.Count;
+            return Route.NumberOfStops == TimeOfStops.Count;
         }
 
 
         #region Properties
 
 
-
+        [NotMapped]
 
         [BackingField("_timeOfStops")]
         public List<DateTime> TimeOfStops
@@ -60,6 +75,7 @@ namespace TgBot.Models
             get => _timeOfStops.Split(";").Select(Convert.ToDateTime).ToList();
             set => _timeOfStops = string.Join(";", value);
         }
+        [NotMapped]
 
         [BackingField("_numberOfLeaving")]
         public List<byte> NumberOfLeaveing
@@ -67,7 +83,7 @@ namespace TgBot.Models
             get => _numberOfLeaving.Split(";").Select(variable => Convert.ToByte(variable)).ToList();
             set => _numberOfLeaving = string.Join(";", value);
         }
-
+        [NotMapped]
         [BackingField("_numberOfIncoming")]
         public List<byte> NumberOfIncoming
         {
