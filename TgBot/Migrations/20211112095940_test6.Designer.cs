@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TgBot.Models;
 
@@ -11,9 +12,10 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    partial class DriverContextModelSnapshot : ModelSnapshot
+    [Migration("20211112095940_test6")]
+    partial class test6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,11 +66,9 @@ namespace TgBot.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("OrdinalRouteId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DriverId");
-
-                    b.HasIndex("OrdinalRouteId");
 
                     b.ToTable("MyDrivers");
                 });
@@ -95,15 +95,6 @@ namespace TgBot.Migrations
                     b.HasOne("TgBot.Models.Driver", null)
                         .WithMany("MyRoutes")
                         .HasForeignKey("DriverId");
-                });
-
-            modelBuilder.Entity("TgBot.Models.Driver", b =>
-                {
-                    b.HasOne("TgBot.Models.Route", "OrdinalRoute")
-                        .WithMany()
-                        .HasForeignKey("OrdinalRouteId");
-
-                    b.Navigation("OrdinalRoute");
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>

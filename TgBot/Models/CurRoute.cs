@@ -16,39 +16,26 @@ namespace TgBot.Models
         public long RecordID { get; private set; }
 
         [Column(TypeName = "varchar(max)")]
-        string? _timeOfStops { get; set; }
+        [BackingField("TimeOfStops")]
+        public string? _timeOfStops { get;private set; }
+
+        public bool? Direction { get; private set; }
+        [Column(TypeName = "varchar(256)")]
+        public string? _numberOfLeaving { get;private set; }
 
         [Column(TypeName = "varchar(256)")]
-        string? _numberOfLeaving { get; set; }
-
-        [Column(TypeName = "varchar(256)")]
-        string? _numberOfIncoming { get; set; }
+        public string? _numberOfIncoming { get;private set; }
 
 
         public DateTime Day;
-
-      [BackingField("Driver")]
-      public   string DriverId
-        {
-            get => Driver.DriverId;
-            set=>Driver=GeneralContext.MyDrivers.Find(value);
-        }
-      [BackingField("Route")]
-      
-       public  string RouteId    {
-            get => Route.RouteId;
-            set=>Route=GeneralContext.MyRoutes.Find(value);
-        }
-
-         public Route Route;
-
+        [NotMapped]
+        public Route Route;
         public Driver Driver;
-      
 
-        public CurRoute(string driverId, string RouteId, DateTime day)
+        public CurRoute(string driverId, DateTime day)
         {
-            DriverId = driverId;
-            RouteId=RouteId;
+            Driver = GeneralContext.MyDrivers.Find(driverId);
+            Route = Driver.OrdinalRoute;
             Day = day;
         }
 
@@ -67,27 +54,28 @@ namespace TgBot.Models
         #region Properties
 
 
-        [NotMapped]
 
-        [BackingField("_timeOfStops")]
+        [NotMapped]
         public List<DateTime> TimeOfStops
         {
-            get => _timeOfStops.Split(";").Select(Convert.ToDateTime).ToList();
+            get => _timeOfStops != null ? _timeOfStops.Split(";").Select(Convert.ToDateTime).ToList() : new List<DateTime>();
             set => _timeOfStops = string.Join(";", value);
         }
+
         [NotMapped]
 
-        [BackingField("_numberOfLeaving")]
         public List<byte> NumberOfLeaveing
         {
-            get => _numberOfLeaving.Split(";").Select(variable => Convert.ToByte(variable)).ToList();
+            get=> _numberOfLeaving != null ? _numberOfLeaving.Split(";").Select(variable => Convert.ToByte(variable)).ToList() : new List<byte>();
+            
             set => _numberOfLeaving = string.Join(";", value);
         }
+
         [NotMapped]
-        [BackingField("_numberOfIncoming")]
         public List<byte> NumberOfIncoming
         {
-            get => _numberOfIncoming.Split(";").Select(variable => Convert.ToByte(variable)).ToList();
+            get => _numberOfIncoming != null ? _numberOfIncoming.Split(";").Select(variable => Convert.ToByte(variable)).ToList() : new List<byte>();
+            
             set => _numberOfIncoming = string.Join(";", value);
         }
 

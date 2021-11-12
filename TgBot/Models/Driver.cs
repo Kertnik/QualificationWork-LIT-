@@ -12,33 +12,42 @@ namespace TgBot.Models
 {
     public class Driver : IEqualityComparer
     {
-        public Driver(string driverId, string name)
+        public Driver(string driverId, string name, string ordinalRouteId)
         {
             MyRoutes = new List<CurRoute>();
-            foreach (var variable in GeneralContext.MyCurRoutes)
+
+            foreach (var variable in GeneralContext.MyCurRoutes.Local)
                 if (variable.Driver.DriverId == DriverId)
                     MyRoutes.Add(variable);
             DriverId = driverId;
             Name = name;
+            OrdinalRouteId = ordinalRouteId;
         }
 
-        [Key][Required] public string DriverId
-        { get;
+        [Key]
+        [Required]
+        public string DriverId
+        {
+            get;
             private set;
         }
 
-        [Column(TypeName = "nvarchar(256)")][Required]
+        [Column(TypeName = "nvarchar(256)")]
+        [Required]
         public string Name { get; private set; }
-
-        [Column(TypeName = "nvarchar(256)")] string? OrdinalRouteId { get; set; }
-
-        [BackingField("OrdinalRouteId")]
-        public Route? OrdinalRoute
+        [ForeignKey("OrdinalRoute")]
+        public string? OrdinalRouteId
         {
-            get => GeneralContext.MyRoutes.Find(OrdinalRouteId);
-            private set => OrdinalRouteId = value?.RouteId;
+            get => OrdinalRoute.RouteId;
+            set => OrdinalRoute = GeneralContext.MyRoutes.Find(value);
         }
 
+
+        public Route? OrdinalRoute
+        {
+            get;
+            private set;
+        }
         public List<CurRoute> MyRoutes { get; set; }
 
 
@@ -69,9 +78,9 @@ namespace TgBot.Models
 
         public void NewRoute()
         {
-            if (MyRoutes.Last().IsFinished())
+            if (MyRoutes.Count == 0 || MyRoutes.Last().IsFinished())
             {
-                MyRoutes.Add(new CurRoute(DriverId, OrdinalRoute.RouteId, DateTime.Today));
+                MyRoutes.Add(new CurRoute(DriverId, DateTime.Today));
                 GeneralContext.SaveChangesAsync();
             }
             else
@@ -81,7 +90,7 @@ namespace TgBot.Models
         }
 
 
-        public void SetRoute(Route route)
+        public void SetRoute(Route? route)
         {
             foreach (var variable in GeneralContext.MyRoutes)
                 if (variable == route)

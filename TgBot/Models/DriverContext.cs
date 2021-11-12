@@ -16,8 +16,7 @@ namespace TgBot.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(
-       "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyTgBot;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyTgBot;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;MultipleActiveResultSets=true");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -26,7 +25,7 @@ namespace TgBot.Models
             modelBuilder.Entity<CurRoute>()
                 .Property(b => b.Day)
                 .HasDefaultValue(DateTime.Today);
-
+    
         /*    modelBuilder.Entity<CurRoute>().HasOne(b => b.Driver).WithMany();
             modelBuilder.Entity<CurRoute>()
                 .HasOne(b => b.Route)

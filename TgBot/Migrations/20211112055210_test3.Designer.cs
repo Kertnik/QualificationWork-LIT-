@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TgBot.Models;
 
@@ -11,9 +12,10 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    partial class DriverContextModelSnapshot : ModelSnapshot
+    [Migration("20211112055210_test3")]
+    partial class test3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +38,12 @@ namespace TgBot.Migrations
                         .HasDefaultValue(new DateTime(2021, 11, 12, 0, 0, 0, 0, DateTimeKind.Local));
 
                     b.Property<string>("DriverId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RouteId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("_numberOfIncoming")
                         .HasColumnType("varchar(256)");
@@ -94,7 +101,9 @@ namespace TgBot.Migrations
                 {
                     b.HasOne("TgBot.Models.Driver", null)
                         .WithMany("MyRoutes")
-                        .HasForeignKey("DriverId");
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
