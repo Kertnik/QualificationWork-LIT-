@@ -31,27 +31,33 @@ namespace TgBot.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordID"), 1L, 1);
 
                     b.Property<DateTime>("Day")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2021, 11, 12, 0, 0, 0, 0, DateTimeKind.Local));
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("Direction")
+                        .HasColumnType("bit");
 
                     b.Property<string>("DriverId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("_numberOfIncoming")
+                    b.Property<string>("NumberOfIncoming")
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("_numberOfLeaving")
+                    b.Property<string>("NumberOfLeaving")
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("_timeOfStops")
+                    b.Property<string>("RouteId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TimeOfStops")
                         .HasColumnType("varchar(max)");
 
                     b.HasKey("RecordID");
 
                     b.HasIndex("DriverId");
 
-                    b.ToTable("MyCurRoutes");
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("MyCurRoutes", (string)null);
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
@@ -63,14 +69,14 @@ namespace TgBot.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("OrdinalRouteId")
+                    b.Property<string>("OrdinalRouteRouteId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("DriverId");
 
-                    b.HasIndex("OrdinalRouteId");
+                    b.HasIndex("OrdinalRouteRouteId");
 
-                    b.ToTable("MyDrivers");
+                    b.ToTable("MyDrivers", (string)null);
                 });
 
             modelBuilder.Entity("TgBot.Models.Route", b =>
@@ -87,21 +93,29 @@ namespace TgBot.Migrations
 
                     b.HasKey("RouteId");
 
-                    b.ToTable("MyRoutes");
+                    b.ToTable("MyRoutes", (string)null);
                 });
 
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
-                    b.HasOne("TgBot.Models.Driver", null)
+                    b.HasOne("TgBot.Models.Driver", "Driver")
                         .WithMany("MyRoutes")
                         .HasForeignKey("DriverId");
+
+                    b.HasOne("TgBot.Models.Route", "Route")
+                        .WithMany()
+                        .HasForeignKey("RouteId");
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Route");
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
                 {
                     b.HasOne("TgBot.Models.Route", "OrdinalRoute")
                         .WithMany()
-                        .HasForeignKey("OrdinalRouteId");
+                        .HasForeignKey("OrdinalRouteRouteId");
 
                     b.Navigation("OrdinalRoute");
                 });

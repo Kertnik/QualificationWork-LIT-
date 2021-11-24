@@ -4,25 +4,25 @@
 
 namespace TgBot.Migrations
 {
-    public partial class test10 : Migration
+    public partial class Test20 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "OrdinalRouteId",
-                table: "MyDrivers",
+                name: "RouteId",
+                table: "MyCurRoutes",
                 type: "nvarchar(450)",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyDrivers_OrdinalRouteId",
-                table: "MyDrivers",
-                column: "OrdinalRouteId");
+                name: "IX_MyCurRoutes_RouteId",
+                table: "MyCurRoutes",
+                column: "RouteId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_MyDrivers_MyRoutes_OrdinalRouteId",
-                table: "MyDrivers",
-                column: "OrdinalRouteId",
+                name: "FK_MyCurRoutes_MyRoutes_RouteId",
+                table: "MyCurRoutes",
+                column: "RouteId",
                 principalTable: "MyRoutes",
                 principalColumn: "RouteId");
         }
@@ -30,16 +30,16 @@ namespace TgBot.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_MyDrivers_MyRoutes_OrdinalRouteId",
-                table: "MyDrivers");
+                name: "FK_MyCurRoutes_MyRoutes_RouteId",
+                table: "MyCurRoutes");
 
             migrationBuilder.DropIndex(
-                name: "IX_MyDrivers_OrdinalRouteId",
-                table: "MyDrivers");
+                name: "IX_MyCurRoutes_RouteId",
+                table: "MyCurRoutes");
 
             migrationBuilder.DropColumn(
-                name: "OrdinalRouteId",
-                table: "MyDrivers");
+                name: "RouteId",
+                table: "MyCurRoutes");
         }
     }
 }

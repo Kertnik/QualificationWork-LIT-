@@ -19,7 +19,7 @@
     },
     "TgBot": {
       "commandName": "Project",
-      "commandLineArgs": "https://14f0-46-98-144-89.ngrok.io",
+      "commandLineArgs": "https://40ed-46-98-144-89.ngrok.io",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

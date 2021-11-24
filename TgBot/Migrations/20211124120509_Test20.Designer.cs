@@ -12,8 +12,8 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    [Migration("20211112043614_test")]
-    partial class test
+    [Migration("20211124120509_Test20")]
+    partial class Test20
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,21 +33,31 @@ namespace TgBot.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordID"), 1L, 1);
 
                     b.Property<DateTime>("Day")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2021, 11, 12, 0, 0, 0, 0, DateTimeKind.Local));
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("Direction")
+                        .HasColumnType("bit");
 
                     b.Property<string>("DriverId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("RouteId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("_numberOfIncoming")
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("_numberOfLeaving")
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("_timeOfStops")
+                        .HasColumnType("varchar(max)");
 
                     b.HasKey("RecordID");
 
                     b.HasIndex("DriverId");
+
+                    b.HasIndex("RouteId");
 
                     b.ToTable("MyCurRoutes");
                 });
@@ -90,11 +100,17 @@ namespace TgBot.Migrations
 
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
-                    b.HasOne("TgBot.Models.Driver", null)
+                    b.HasOne("TgBot.Models.Driver", "Driver")
                         .WithMany("MyRoutes")
-                        .HasForeignKey("DriverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DriverId");
+
+                    b.HasOne("TgBot.Models.Route", "Route")
+                        .WithMany()
+                        .HasForeignKey("RouteId");
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Route");
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>

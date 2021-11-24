@@ -8,7 +8,7 @@ using static TgBot.Program;
 
 namespace TgBot.Models
 {
-    public class CurRoute : IDisposable
+    public class CurRoute
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -17,68 +17,53 @@ namespace TgBot.Models
 
         [Column(TypeName = "varchar(max)")]
         [BackingField("TimeOfStops")]
-        public string? _timeOfStops { get;private set; }
+        public string? TimeOfStops { get; private set; }
 
         public bool? Direction { get; private set; }
         [Column(TypeName = "varchar(256)")]
-        public string? _numberOfLeaving { get;private set; }
+        public string? NumberOfLeaving { get; private set; }
 
         [Column(TypeName = "varchar(256)")]
-        public string? _numberOfIncoming { get;private set; }
+        public string? NumberOfIncoming { get; private set; }
 
 
-        public DateTime Day;
-        [NotMapped]
-        public Route Route;
-        public Driver Driver;
-
-        public CurRoute(string driverId, DateTime day)
+        public DateTime Day { get; private set; }
+        public Route Route { get; private set; }
+        public Driver Driver { get; private set; }
+        public CurRoute(string driverId, DateTime day, string routeId)
         {
-            Driver = GeneralContext.MyDrivers.Find(driverId);
-            Route = Driver.OrdinalRoute;
+            using (var db = new DriverContextFactory().CreateDbContext())
+            {
+                Driver = db.MyDrivers.Find(driverId);
+                Route = db.MyRoutes.Find(routeId);
+                db.Entry(Route).State = EntityState.Detached;
+                Day = day;
+            }
+        }
+        public CurRoute(Driver driver, DateTime day, Route route)
+        {
+            Route = route;
+            Driver = driver;
             Day = day;
+
         }
 
 
-        public void Dispose()
+        public bool IsFinished() => Route.NumberOfStops == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);
+
+
+        public void AddTimeOfStop(DateTime date)
         {
-            GeneralContext.SaveChanges();
-        }
+            TimeOfStops = (TimeOfStops == null ? "" : TimeOfStops + ";") + date; ;
 
-        public bool IsFinished()
+        }
+        public void AddIncoming(byte a)
         {
-            return Route.NumberOfStops == TimeOfStops.Count;
+            NumberOfIncoming = (NumberOfIncoming == null ? "" : NumberOfIncoming + ";") + a;
         }
-
-
-        #region Properties
-
-
-
-        [NotMapped]
-        public List<DateTime> TimeOfStops
+        public void AddLeaving(byte a)
         {
-            get => _timeOfStops != null ? _timeOfStops.Split(";").Select(Convert.ToDateTime).ToList() : new List<DateTime>();
-            set => _timeOfStops = string.Join(";", value);
+            NumberOfLeaving = (NumberOfLeaving == null ? "" : NumberOfLeaving + ";") + a;
         }
-
-        [NotMapped]
-
-        public List<byte> NumberOfLeaveing
-        {
-            get=> _numberOfLeaving != null ? _numberOfLeaving.Split(";").Select(variable => Convert.ToByte(variable)).ToList() : new List<byte>();
-            
-            set => _numberOfLeaving = string.Join(";", value);
-        }
-
-        [NotMapped]
-        public List<byte> NumberOfIncoming
-        {
-            get => _numberOfIncoming != null ? _numberOfIncoming.Split(";").Select(variable => Convert.ToByte(variable)).ToList() : new List<byte>();
-            
-            set => _numberOfIncoming = string.Join(";", value);
-        }
-
-        #endregion
     }
 }
