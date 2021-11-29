@@ -1,4 +1,6 @@
 
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using TgBot.Models;
@@ -10,6 +12,7 @@ namespace TgBot
 
         public static void Main(string[] args)
         {
+
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -18,8 +18,8 @@ namespace TgBot.Models
         [Column(TypeName = "varchar(max)")]
         [BackingField("TimeOfStops")]
         public string? TimeOfStops { get; private set; }
-
-        public bool? Direction { get; private set; }
+        [Column(TypeName = "bit")]
+        public bool IsFromFirstStop { get;protected set; }
         [Column(TypeName = "varchar(256)")]
         public string? NumberOfLeaving { get; private set; }
 
@@ -30,7 +30,7 @@ namespace TgBot.Models
         public DateTime Day { get; private set; }
         public Route Route { get; private set; }
         public Driver Driver { get; private set; }
-        public CurRoute(string driverId, DateTime day, string routeId)
+        public CurRoute(string driverId, DateTime day, string routeId, bool isFromFirstStop)
         {
             using (var db = new DriverContextFactory().CreateDbContext())
             {
@@ -38,15 +38,10 @@ namespace TgBot.Models
                 Route = db.MyRoutes.Find(routeId);
                 db.Entry(Route).State = EntityState.Detached;
                 Day = day;
+                IsFromFirstStop = isFromFirstStop;
             }
         }
-        public CurRoute(Driver driver, DateTime day, Route route)
-        {
-            Route = route;
-            Driver = driver;
-            Day = day;
-
-        }
+    
 
 
         public bool IsFinished() => Route.NumberOfStops == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);

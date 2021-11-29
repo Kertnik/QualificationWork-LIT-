@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TgBot.Models;
 
@@ -11,9 +12,10 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    partial class DriverContextModelSnapshot : ModelSnapshot
+    [Migration("20211129072906_Final")]
+    partial class Final
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +59,7 @@ namespace TgBot.Migrations
 
                     b.HasIndex("RouteId");
 
-                    b.ToTable("MyCurRoutes", (string)null);
+                    b.ToTable("MyCurRoutes");
                 });
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
@@ -76,7 +78,7 @@ namespace TgBot.Migrations
 
                     b.HasIndex("OrdinalRouteRouteId");
 
-                    b.ToTable("MyDrivers", (string)null);
+                    b.ToTable("MyDrivers");
                 });
 
             modelBuilder.Entity("TgBot.Models.Route", b =>
@@ -93,7 +95,7 @@ namespace TgBot.Migrations
 
                     b.HasKey("RouteId");
 
-                    b.ToTable("MyRoutes", (string)null);
+                    b.ToTable("MyRoutes");
                 });
 
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace TgBot.Models
 {
@@ -12,8 +13,8 @@ namespace TgBot.Models
     {
         public Driver(string driverId, string name)
         {
-            DriverId=driverId;
-            Name=name;
+            DriverId = driverId;
+            Name = name;
 
         }
 
@@ -35,38 +36,36 @@ namespace TgBot.Models
 
 
 
-        public async void NewRoute()
+        public async void NewRoute(bool direction)
         {
-            
-                if (HistoryRoutes.Count==0||HistoryRoutes.Last().IsFinished())
-                {
-                    using (var db = new DriverContextFactory().CreateDbContext())
-                    {
-                        db.Update(this);
-                        db.UpdateRange(HistoryRoutes);
-                        HistoryRoutes.Add(new CurRoute(this, DateTime.Today, OrdinalRoute));
-                        await db.SaveChangesAsync();
-                    }
-                }
 
-                else
+            if (HistoryRoutes.Count == 0 || HistoryRoutes.Last().IsFinished())
+            {
+                await using (var db = new DriverContextFactory().CreateDbContext())
                 {
-                    throw new ArgumentException("Bad Call");
+                    db.Update(this);
+                    HistoryRoutes.Add(new CurRoute(DriverId, DateTime.Now, OrdinalRoute.RouteId, direction));
+                    await db.SaveChangesAsync();
                 }
-            
+            }
+
+            else
+            {
+                throw new ArgumentException("Bad Call");
+            }
+
         }
         public async void SetRoute(string routeId)
         {
-            using (var db = new DriverContextFactory().CreateDbContext())
+            if(routeId==OrdinalRoute.RouteId)return;
+            await using (var db = new DriverContextFactory().CreateDbContext())
             {
-                db.Update<Driver>(this);
-                OrdinalRoute=db.MyRoutes.Find(routeId)??throw new ArgumentNullException();
-
-               // db.MyDrivers.Find(this.DriverId).OrdinalRoute=OrdinalRoute;
+                
+                db.Update(this);
+                OrdinalRoute =  db.MyRoutes.Find(routeId) ?? throw new ArgumentNullException();
                 await db.SaveChangesAsync();
             }
         }
-
 
 
         public override string ToString()

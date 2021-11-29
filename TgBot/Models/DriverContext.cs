@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Telegram.Bot.Types;
 
 namespace TgBot.Models
 {
@@ -14,7 +15,10 @@ namespace TgBot.Models
         public DbSet<Route> MyRoutes { get; set; }
         public DbSet<CurRoute> MyCurRoutes { get; set; }
 
-     
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+           
+        }
     }
 }
