@@ -12,8 +12,8 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    [Migration("20211124180913_Initial")]
-    partial class Initial
+    [Migration("20211130082915_test5")]
+    partial class test5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,11 +35,11 @@ namespace TgBot.Migrations
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("Direction")
-                        .HasColumnType("bit");
-
                     b.Property<string>("DriverId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsFromFirstStop")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NumberOfIncoming")
                         .HasColumnType("varchar(256)");
@@ -101,11 +101,11 @@ namespace TgBot.Migrations
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
                     b.HasOne("TgBot.Models.Driver", "Driver")
-                        .WithMany("MyRoutes")
+                        .WithMany("HistoryRoutes")
                         .HasForeignKey("DriverId");
 
                     b.HasOne("TgBot.Models.Route", "Route")
-                        .WithMany()
+                        .WithMany("RoutesHistory")
                         .HasForeignKey("RouteId");
 
                     b.Navigation("Driver");
@@ -124,7 +124,12 @@ namespace TgBot.Migrations
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
                 {
-                    b.Navigation("MyRoutes");
+                    b.Navigation("HistoryRoutes");
+                });
+
+            modelBuilder.Entity("TgBot.Models.Route", b =>
+                {
+                    b.Navigation("RoutesHistory");
                 });
 #pragma warning restore 612, 618
         }

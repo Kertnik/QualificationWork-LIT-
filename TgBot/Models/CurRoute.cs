@@ -25,24 +25,25 @@ namespace TgBot.Models
 
         [Column(TypeName = "varchar(256)")]
         public string? NumberOfIncoming { get; private set; }
-
-
         public DateTime Day { get; private set; }
         public Route Route { get; private set; }
         public Driver Driver { get; private set; }
-        public CurRoute(string driverId, DateTime day, string routeId, bool isFromFirstStop)
-        {
-            using (var db = new DriverContextFactory().CreateDbContext())
-            {
-                Driver = db.MyDrivers.Find(driverId);
-                Route = db.MyRoutes.Find(routeId);
-                db.Entry(Route).State = EntityState.Detached;
-                Day = day;
-                IsFromFirstStop = isFromFirstStop;
-            }
-        }
-    
 
+        public CurRoute( bool isFromFirstStop, DateTime day, Route route, Driver driver)
+        {
+            IsFromFirstStop = isFromFirstStop;
+            Day = day;
+            Route = route;
+            Driver = driver;
+        }
+
+        public CurRoute(bool isFromFirstStop, DateTime day)
+        {
+            IsFromFirstStop = isFromFirstStop;
+            Day = day;
+        }
+
+      
 
         public bool IsFinished() => Route.NumberOfStops == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);
 

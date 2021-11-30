@@ -12,7 +12,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TgBot.Models;
-using static TgBot.Program;
 namespace TgBot.Services
 {
     public class HandleUpdateService
@@ -27,8 +26,17 @@ namespace TgBot.Services
         }
         async Task BotOnMessageReceived(Message message)
         {
+            Driver driver;
             _logger.LogInformation($"Receive message type: {message.Type}");
-            var driver = GetDriver(message.Chat.Username);
+            try
+            {
+                driver = GetDriver(message.Chat.Username);
+            }
+            catch
+            {
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "Acsess denied");
+                return;
+            }
             message.Text = message.Text.Trim();
 
             var action = message.Text.Split(' ').First() switch
@@ -91,13 +99,22 @@ namespace TgBot.Services
         }
         async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery)
         {
-            var driver = GetDriver(callbackQuery.From.Username);
+            Driver driver;
+            try
+            {
+                driver = GetDriver(callbackQuery.From.Username);
+            }
+            catch
+            {
+                await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Acsess denied");
+                return;
+            }
             string[] stops = driver.OrdinalRoute.Stops.Split(";");
-            
+
             if (callbackQuery.Data == stops[0]) driver.NewRoute(true);
             else if (callbackQuery.Data == stops[^1]) driver.NewRoute(false);
             else { await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Wrong station please use /start once again or contact administrator"); return; }
-           
+
             await _botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id,
                 text: $"Route started");
@@ -119,8 +136,7 @@ namespace TgBot.Services
             await using (var db = new DriverContextFactory().CreateDbContext())
             {
 
-                var t = db.MyCurRoutes.Find(driver.HistoryRoutes.Last().RecordID);
-                db.Update(t);
+                var t = driver.HistoryRoutes.Last();
                 t.AddTimeOfStop(message.Date);
                 await db.SaveChangesAsync();
             }
@@ -158,10 +174,8 @@ namespace TgBot.Services
             };
             await using (var db = new DriverContextFactory().CreateDbContext())
             {
-                var t = db.MyCurRoutes.Find(driver.HistoryRoutes.Last().RecordID);
-                db.Update(t);
+                var t = driver.HistoryRoutes.Last();
                 t.AddIncoming((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
-
                 await db.SaveChangesAsync();
             }
 
@@ -175,8 +189,7 @@ namespace TgBot.Services
 
             using (var db = new DriverContextFactory().CreateDbContext())
             {
-                var t = db.MyCurRoutes.Find(driver.HistoryRoutes.Last().RecordID);
-                db.Update(t);
+                var t = driver.HistoryRoutes.Last();
                 t.AddLeaving((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
                 await db.SaveChangesAsync();
             }
@@ -211,15 +224,10 @@ namespace TgBot.Services
 
         static async Task<Message> SetRoute(ITelegramBotClient bot, Message message, Driver driver)
         {
-            try
-            {
-                driver.SetRoute(message.Text.Split(" ")[^1]);
-            }
-            catch (ArgumentNullException)
-            {
+            if (driver.HistoryRoutes.Count != 0 && !driver.HistoryRoutes.Last().IsFinished()) return await bot.SendTextMessageAsync(message.Chat.Id, "End your route firstly");
 
-                return await bot.SendTextMessageAsync(message.Chat.Id, "Bad route id, change denied");
-            }
+            if (! driver.SetRoute(message.Text.Split(" ")[^1]).Result) return await bot.SendTextMessageAsync(message.Chat.Id, "Bad route id, change denied");
+
             return await bot.SendTextMessageAsync(message.Chat.Id, "Changed");
         }
         static async Task<Message> Help(ITelegramBotClient bot, Message message)
@@ -285,12 +293,8 @@ namespace TgBot.Services
         {
             Driver driver;
             using (var db = new DriverContextFactory().CreateDbContext())
-            {//Explicit loading
-                driver = db.MyDrivers.Single(d => d.DriverId == username);
-                db.Entry(driver).Reference(d => d.OrdinalRoute).Load();
-                db.Entry(driver.OrdinalRoute).State = EntityState.Detached;
-                db.Entry(driver).Collection(d => d.HistoryRoutes).Load();
-                db.Entry(driver).Collection(d => d.HistoryRoutes).EntityEntry.State = EntityState.Detached;
+            {
+                driver = db.MyDrivers.Include(d => d.OrdinalRoute).Include(d=>d.HistoryRoutes).ThenInclude(cr=>cr.Route).AsNoTracking().First(d=>d.DriverId==username);
 
             }
 

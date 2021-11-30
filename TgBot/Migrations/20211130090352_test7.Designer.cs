@@ -12,8 +12,8 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    [Migration("20211129090013_PreFinal")]
-    partial class PreFinal
+    [Migration("20211130090352_test7")]
+    partial class test7
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,7 +35,7 @@ namespace TgBot.Migrations
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DriverId")
+                    b.Property<string>("DriverForeignKey")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsFromFirstStop")
@@ -47,7 +47,7 @@ namespace TgBot.Migrations
                     b.Property<string>("NumberOfLeaving")
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("RouteId")
+                    b.Property<string>("RouteForeignKey")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("TimeOfStops")
@@ -55,9 +55,9 @@ namespace TgBot.Migrations
 
                     b.HasKey("RecordID");
 
-                    b.HasIndex("DriverId");
+                    b.HasIndex("DriverForeignKey");
 
-                    b.HasIndex("RouteId");
+                    b.HasIndex("RouteForeignKey");
 
                     b.ToTable("MyCurRoutes");
                 });
@@ -102,11 +102,11 @@ namespace TgBot.Migrations
                 {
                     b.HasOne("TgBot.Models.Driver", "Driver")
                         .WithMany("HistoryRoutes")
-                        .HasForeignKey("DriverId");
+                        .HasForeignKey("DriverForeignKey");
 
                     b.HasOne("TgBot.Models.Route", "Route")
-                        .WithMany()
-                        .HasForeignKey("RouteId");
+                        .WithMany("RoutesHistory")
+                        .HasForeignKey("RouteForeignKey");
 
                     b.Navigation("Driver");
 
@@ -125,6 +125,11 @@ namespace TgBot.Migrations
             modelBuilder.Entity("TgBot.Models.Driver", b =>
                 {
                     b.Navigation("HistoryRoutes");
+                });
+
+            modelBuilder.Entity("TgBot.Models.Route", b =>
+                {
+                    b.Navigation("RoutesHistory");
                 });
 #pragma warning restore 612, 618
         }

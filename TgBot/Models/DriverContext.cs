@@ -18,6 +18,14 @@ namespace TgBot.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CurRoute>()
+                        .HasOne(p => p.Driver)
+                        .WithMany(b => b.HistoryRoutes)
+                        .HasForeignKey("DriverForeignKey");
+            modelBuilder.Entity<CurRoute>()
+                        .HasOne(p => p.Route)
+                        .WithMany(b => b.RoutesHistory)
+                        .HasForeignKey("RouteForeignKey");
            
         }
     }

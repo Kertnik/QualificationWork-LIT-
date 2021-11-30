@@ -4,7 +4,7 @@
 
 namespace TgBot.Migrations
 {
-    public partial class PreFinal : Migration
+    public partial class test5 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

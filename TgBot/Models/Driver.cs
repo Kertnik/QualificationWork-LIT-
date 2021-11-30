@@ -1,10 +1,10 @@
 ﻿#nullable enable
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace TgBot.Models
@@ -32,7 +32,7 @@ namespace TgBot.Models
 
         public Route? OrdinalRoute { get; set; }
 
-        public List<CurRoute> HistoryRoutes { get; protected set; }
+        public List<CurRoute> HistoryRoutes { get; protected set; } = new();
 
 
 
@@ -44,7 +44,7 @@ namespace TgBot.Models
                 await using (var db = new DriverContextFactory().CreateDbContext())
                 {
                     db.Update(this);
-                    HistoryRoutes.Add(new CurRoute(DriverId, DateTime.Now, OrdinalRoute.RouteId, direction));
+                    HistoryRoutes.Add(new CurRoute(direction,DateTime.Now, OrdinalRoute,this));
                     await db.SaveChangesAsync();
                 }
             }
@@ -55,15 +55,18 @@ namespace TgBot.Models
             }
 
         }
-        public async void SetRoute(string routeId)
+        public async Task<bool> SetRoute(string routeId)
         {
-            if(routeId==OrdinalRoute.RouteId)return;
+            if (routeId == OrdinalRoute.RouteId) return true;
             await using (var db = new DriverContextFactory().CreateDbContext())
             {
-                
                 db.Update(this);
-                OrdinalRoute =  db.MyRoutes.Find(routeId) ?? throw new ArgumentNullException();
-                await db.SaveChangesAsync();
+                var t = db.MyRoutes.Find(routeId);
+                if (t == null) return false;
+                OrdinalRoute = t;
+                db.SaveChanges();
+
+                return true;
             }
         }
 
