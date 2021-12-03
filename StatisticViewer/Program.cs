@@ -1,3 +1,5 @@
+using StatisticViewer.Forms;
+
 namespace StatisticViewer
 {
     internal static class Program
@@ -9,7 +11,7 @@ namespace StatisticViewer
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new WelcomeForm());
+            Application.Run(new ChooseForm());
         }
     }
 }

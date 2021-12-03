@@ -10,7 +10,7 @@ using TgBot.Models;
 
 namespace TgBot.Migrations
 {
-    [DbContext(typeof(DriverContext))]
+    [DbContext(typeof(TgBotContext))]
     partial class DriverContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -21,7 +21,6 @@
     },
     "TgBot": {
       "commandName": "Project",
-      "commandLineArgs": "https://40ed-46-98-144-89.ngrok.io",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "VaultUri": "https://tgbotvault.vault.azure.net/",

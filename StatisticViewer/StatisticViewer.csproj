@@ -18,4 +18,15 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Forms\ChooseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Forms\ChangeForms\" />
+    <Folder Include="Forms\ViewForms\" />
+  </ItemGroup>
+
 </Project>

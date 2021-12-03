@@ -27,9 +27,9 @@ namespace TgBot
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DriverContext>(options =>
+            services.AddDbContext<TgBotContext>(options =>
                 options.UseSqlServer(ConnectionString));
-            var a = new DriverContext(new DbContextOptionsBuilder<DriverContext>()
+            var a = new TgBotContext(new DbContextOptionsBuilder<TgBotContext>()
                                      .UseSqlServer(ConnectionString).Options);
 
             if (a.Database.EnsureCreated()) throw new AccessViolationException();

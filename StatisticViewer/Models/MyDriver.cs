@@ -21,7 +21,11 @@ namespace StatisticViewer.Models
                 DriverId = driverId,
                 Name = name
             };
-            
+            using (var db=new TgBotContext())
+            {
+                
+            }
+            return ans;
         }
 
         public virtual ICollection<MyCurRoute>? MyCurRoutes { get; set; }

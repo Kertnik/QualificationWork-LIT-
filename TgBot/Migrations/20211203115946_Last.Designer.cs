@@ -11,7 +11,7 @@ using TgBot.Models;
 
 namespace TgBot.Migrations
 {
-    [DbContext(typeof(DriverContext))]
+    [DbContext(typeof(TgBotContext))]
     [Migration("20211203115946_Last")]
     partial class Last
     {

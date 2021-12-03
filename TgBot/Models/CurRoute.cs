@@ -13,28 +13,28 @@ namespace TgBot.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         [Column]
-        public long RecordID { get; private set; }
+        public long RecordId { get; protected set; }
 
         [Column(TypeName = "varchar(max)")]
         [BackingField("TimeOfStops")]
-        public string? TimeOfStops { get; private set; }
+        public string? TimeOfStops { get; protected set; }
         [Column(TypeName = "bit")]
         public bool? IsFromFirstStop { get; set; }
         [Column(TypeName = "varchar(256)")]
-        public string? NumberOfLeaving { get; private set; }
+        public string? NumberOfLeaving { get; protected set; }
 
         [Column(TypeName = "varchar(256)")]
-        public string? NumberOfIncoming { get; private set; }
-        public DateTime Day { get; private set; }
-        public Route Route { get; private set; }
-        public Driver Driver { get; private set; }
+        public string? NumberOfIncoming { get; protected set; }
+        public DateTime Day { get; protected set; }
+        public Route Route { get; protected set; }
+        public Driver Driver { get; protected set; }
         [Required]
         [ForeignKey("Route")]
         public string RouteId;
         [Required]
         [ForeignKey("Driver")]
         public string DriverId;
-     
+
 
         public CurRoute(DateTime day,string routeId,string driverId)
         {

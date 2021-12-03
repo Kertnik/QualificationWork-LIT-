@@ -28,7 +28,7 @@ namespace TgBot.Services
             _logger.LogInformation($"Receive message type: {message.Type}");
 
 
-            using (var db = new DriverContextFactory().CreateDbContext())
+            using (var db = new TgBotContext())
             {
                 if (db.MyDrivers.FirstOrDefault(d => d.DriverId == message.From.Username) == null)
                 {
@@ -56,38 +56,45 @@ namespace TgBot.Services
         static async Task<Message> StartOfWork(ITelegramBotClient bot, Message message)
         {
             string answer;
-            using (var db = new DriverContextFactory().CreateDbContext())
+            using (var db = new TgBotContext())
             {
                 var driver = db.MyDrivers.Include(d => d.RoutesList).ThenInclude(cr => cr.Route).AsNoTracking()
                                .First(d => d.DriverId == message.From.Username);
 
                 if (driver.RoutesList is null || (driver.RoutesList.Count == 0) || driver.RoutesList.Last().IsFinished())
                 {
-                    string routeId = message.Text.Split(" ")[1];
-                    var inputRoute = db.MyRoutes.FirstOrDefault(r => r.RouteId == routeId);
-                    if (inputRoute == null)
+                    Route inputRoute;
+                    byte startNumber;
+                    try
                     {
-                        answer = "Use /start correctly";
+                        var messageValues = message.Text.Split(" ");
+                        inputRoute = db.MyRoutes.First(r => r.RouteId == messageValues[1]);
+                        startNumber = Convert.ToByte(messageValues[2]);
+
                     }
-                    else
+                    catch
                     {
-                        db.MyCurRoutes.Add(new CurRoute(DateTime.Now, inputRoute.RouteId, driver.DriverId));
-                        await db.SaveChangesAsync();
-                        string[] text = inputRoute.Stops.Split(";");
-                        InlineKeyboardMarkup inlineKeyboard = new(
-                            new[]
-                            {
+                        return await bot.SendTextMessageAsync(message.Chat.Id, "Use /start correctly \n Example:/start M1 12");
+                    }
+                    var entity = new CurRoute(DateTime.Now, inputRoute.RouteId, driver.DriverId);
+                    db.MyCurRoutes.Add(entity);
+                    entity.AddIncoming(startNumber);
+                    await db.SaveChangesAsync();
+                    string[] text = inputRoute.Stops.Split(";");
+                    InlineKeyboardMarkup inlineKeyboard = new(
+                        new[]
+                        {
                                 new[]
                                 {
                                     InlineKeyboardButton.WithCallbackData(text[0], text[0]),
                                     InlineKeyboardButton.WithCallbackData(text[^1], text[^1])
                                 }
-                            });
+                        });
 
-                        return await bot.SendTextMessageAsync(message.Chat.Id,
-                            "Choose your station",
-                            replyMarkup: inlineKeyboard);
-                    }
+                    return await bot.SendTextMessageAsync(message.Chat.Id,
+                        "Choose your station",
+                        replyMarkup: inlineKeyboard);
+
                 }
                 else
                 {
@@ -100,7 +107,7 @@ namespace TgBot.Services
 
         async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery)
         {
-            await using (var db = new DriverContextFactory().CreateDbContext())
+            await using (var db = new TgBotContext())
             {
                 CurRoute curRoute;
                 try
@@ -152,7 +159,7 @@ namespace TgBot.Services
 
         static async Task<Message> SendReplyAddKeyboard(ITelegramBotClient bot, Message message)
         {
-            await using (var db = new DriverContextFactory().CreateDbContext())
+            await using (var db = new TgBotContext())
             {
                 var curRoutes = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList;
@@ -200,7 +207,7 @@ namespace TgBot.Services
             {
                 ResizeKeyboard = true
             };
-            await using (var db = new DriverContextFactory().CreateDbContext())
+            await using (var db = new TgBotContext())
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
@@ -217,7 +224,7 @@ namespace TgBot.Services
 
         static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message)
         {
-            using (var db = new DriverContextFactory().CreateDbContext())
+            using (var db = new TgBotContext())
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
@@ -239,7 +246,7 @@ namespace TgBot.Services
 
         static async Task<Message> EndRoute(ITelegramBotClient bot, Message message)
         {
-            using (var db = new DriverContextFactory().CreateDbContext())
+            using (var db = new TgBotContext())
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
@@ -261,7 +268,7 @@ namespace TgBot.Services
         static async Task<Message> Help(ITelegramBotClient bot, Message message)
         {
             const string usage = "Usage:\n" +
-                                 "/start [idOfRoute] - starts new route\n" +
+                                 "/start [idOfRoute] [numberOfPassangers] - starts new route\n" +
                                  "/continue - marks a stop\n" +
                                  "/end - cancels current route\n";
 
