@@ -6,13 +6,6 @@ namespace TgBot.Models
 {
     public class Route
     {
-        public Route(string routeId, string stops)
-        {
-            RouteId = routeId;
-            Stops = stops;
-         //   RoutesHistory ??= new List<CurRoute>();
-        }
-
         public List<CurRoute> RoutesHistory { get; private set; }
         [Key] public string RouteId { get; private set; }
         [Column(TypeName = "nvarchar(max)")] public string Stops { get; private set; }

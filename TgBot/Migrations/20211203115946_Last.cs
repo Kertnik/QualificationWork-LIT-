@@ -4,7 +4,7 @@
 
 namespace TgBot.Migrations
 {
-    public partial class FInal : Migration
+    public partial class Last : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

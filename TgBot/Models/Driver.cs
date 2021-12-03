@@ -11,12 +11,6 @@ namespace TgBot.Models
 {
     public class Driver
     {
-        public Driver(string driverId, string name)
-        {
-            DriverId = driverId;
-            Name = name;
-          //  RoutesList ??= new List<CurRoute>();
-        }
 
         [Key]
         [Required]

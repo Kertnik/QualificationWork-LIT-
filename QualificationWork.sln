@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TgBot", "TgBot\TgBot.csproj", "{F88A9E63-8B60-420D-974E-81714B594BFB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatisticViewer", "StatisticViewer\StatisticViewer.csproj", "{3A96B9D8-08FC-43C4-AF56-063EA9633898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F88A9E63-8B60-420D-974E-81714B594BFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F88A9E63-8B60-420D-974E-81714B594BFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F88A9E63-8B60-420D-974E-81714B594BFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A96B9D8-08FC-43C4-AF56-063EA9633898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A96B9D8-08FC-43C4-AF56-063EA9633898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A96B9D8-08FC-43C4-AF56-063EA9633898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A96B9D8-08FC-43C4-AF56-063EA9633898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
