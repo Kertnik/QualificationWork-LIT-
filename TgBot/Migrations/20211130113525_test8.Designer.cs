@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TgBot.Models;
 
@@ -11,9 +12,10 @@ using TgBot.Models;
 namespace TgBot.Migrations
 {
     [DbContext(typeof(DriverContext))]
-    partial class DriverContextModelSnapshot : ModelSnapshot
+    [Migration("20211130113525_test8")]
+    partial class test8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +35,7 @@ namespace TgBot.Migrations
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DriverId")
-                        .IsRequired()
+                    b.Property<string>("DriverForeignKey")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("IsFromFirstStop")
@@ -46,8 +47,7 @@ namespace TgBot.Migrations
                     b.Property<string>("NumberOfLeaving")
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("RouteId")
-                        .IsRequired()
+                    b.Property<string>("RouteForeignKey")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("TimeOfStops")
@@ -55,9 +55,9 @@ namespace TgBot.Migrations
 
                     b.HasKey("RecordID");
 
-                    b.HasIndex("DriverId");
+                    b.HasIndex("DriverForeignKey");
 
-                    b.HasIndex("RouteId");
+                    b.HasIndex("RouteForeignKey");
 
                     b.ToTable("MyCurRoutes");
                 });
@@ -81,6 +81,9 @@ namespace TgBot.Migrations
                     b.Property<string>("RouteId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<byte>("NumberOfStops")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("Stops")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -93,16 +96,12 @@ namespace TgBot.Migrations
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
                     b.HasOne("TgBot.Models.Driver", "Driver")
-                        .WithMany("RoutesList")
-                        .HasForeignKey("DriverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("HistoryRoutes")
+                        .HasForeignKey("DriverForeignKey");
 
                     b.HasOne("TgBot.Models.Route", "Route")
                         .WithMany("RoutesHistory")
-                        .HasForeignKey("RouteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RouteForeignKey");
 
                     b.Navigation("Driver");
 
@@ -111,7 +110,7 @@ namespace TgBot.Migrations
 
             modelBuilder.Entity("TgBot.Models.Driver", b =>
                 {
-                    b.Navigation("RoutesList");
+                    b.Navigation("HistoryRoutes");
                 });
 
             modelBuilder.Entity("TgBot.Models.Route", b =>

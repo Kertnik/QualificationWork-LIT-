@@ -15,7 +15,7 @@ namespace TgBot.Models
         {
             DriverId = driverId;
             Name = name;
-
+          //  RoutesList ??= new List<CurRoute>();
         }
 
         [Key]
@@ -30,45 +30,11 @@ namespace TgBot.Models
         [Required]
         public string Name { get; private set; }
 
-        public Route? OrdinalRoute { get; set; }
-
-        public List<CurRoute> HistoryRoutes { get; protected set; } = new();
 
 
+        public List<CurRoute> RoutesList { get; set; }
 
-        public async void NewRoute(bool direction)
-        {
 
-            if (HistoryRoutes.Count == 0 || HistoryRoutes.Last().IsFinished())
-            {
-                await using (var db = new DriverContextFactory().CreateDbContext())
-                {
-                    db.Update(this);
-                    HistoryRoutes.Add(new CurRoute(direction,DateTime.Now, OrdinalRoute,this));
-                    await db.SaveChangesAsync();
-                }
-            }
-
-            else
-            {
-                throw new ArgumentException("Bad Call");
-            }
-
-        }
-        public async Task<bool> SetRoute(string routeId)
-        {
-            if (routeId == OrdinalRoute.RouteId) return true;
-            await using (var db = new DriverContextFactory().CreateDbContext())
-            {
-                db.Update(this);
-                var t = db.MyRoutes.Find(routeId);
-                if (t == null) return false;
-                OrdinalRoute = t;
-                db.SaveChanges();
-
-                return true;
-            }
-        }
 
 
         public override string ToString()

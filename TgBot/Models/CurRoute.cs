@@ -19,7 +19,7 @@ namespace TgBot.Models
         [BackingField("TimeOfStops")]
         public string? TimeOfStops { get; private set; }
         [Column(TypeName = "bit")]
-        public bool IsFromFirstStop { get;protected set; }
+        public bool? IsFromFirstStop { get; set; }
         [Column(TypeName = "varchar(256)")]
         public string? NumberOfLeaving { get; private set; }
 
@@ -28,24 +28,24 @@ namespace TgBot.Models
         public DateTime Day { get; private set; }
         public Route Route { get; private set; }
         public Driver Driver { get; private set; }
+        [Required]
+        [ForeignKey("Route")]
+        public string RouteId;
+        [Required]
+        [ForeignKey("Driver")]
+        public string DriverId;
+     
 
-        public CurRoute( bool isFromFirstStop, DateTime day, Route route, Driver driver)
+        public CurRoute(DateTime day,string routeId,string driverId)
         {
-            IsFromFirstStop = isFromFirstStop;
             Day = day;
-            Route = route;
-            Driver = driver;
-        }
-
-        public CurRoute(bool isFromFirstStop, DateTime day)
-        {
-            IsFromFirstStop = isFromFirstStop;
-            Day = day;
+            RouteId = routeId;
+            DriverId = driverId;
         }
 
       
 
-        public bool IsFinished() => Route.NumberOfStops == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);
+        public bool IsFinished() => Route.Stops.Split(";").Length == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);
 
 
         public void AddTimeOfStop(DateTime date)

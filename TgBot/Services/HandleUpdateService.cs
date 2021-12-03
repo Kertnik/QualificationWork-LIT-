@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
@@ -11,6 +12,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TgBot.Migrations;
 using TgBot.Models;
 namespace TgBot.Services
 {
@@ -26,27 +28,26 @@ namespace TgBot.Services
         }
         async Task BotOnMessageReceived(Message message)
         {
-            Driver driver;
             _logger.LogInformation($"Receive message type: {message.Type}");
-            try
+
+
+            using (var db = new DriverContextFactory().CreateDbContext())
             {
-                driver = GetDriver(message.Chat.Username);
-            }
-            catch
-            {
-                await _botClient.SendTextMessageAsync(message.Chat.Id, "Acsess denied");
-                return;
+                if(db.MyDrivers.FirstOrDefault(d=>d.DriverId==message.From.Username)==null )
+                {
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, "Acsess denied");
+                    return;
+                }
             }
             message.Text = message.Text.Trim();
 
             var action = message.Text.Split(' ').First() switch
             {
-                "/start" => StartOfWork(_botClient, message, driver),
-                "/set" => SetRoute(_botClient, message, driver),
-                "/continue" => SendReplyAddKeyboard(_botClient, message, driver),
-                "-" => RemoveKeyboard(_botClient, message, driver),
-                "+" => SendReplyMinusKeyboard(_botClient, message, driver),
-                "/end" => EndRoute(_botClient, message, driver),
+                "/start" => StartOfWork(_botClient, message),
+                "/continue" => SendReplyAddKeyboard(_botClient, message),
+                "-" => RemoveKeyboard(_botClient, message),
+                "+" => SendReplyMinusKeyboard(_botClient, message),
+                "/end" => EndRoute(_botClient, message),
                 _ => Help(_botClient, message)
             };
 
@@ -55,92 +56,121 @@ namespace TgBot.Services
 
 
         }
-        static async Task<Message> StartOfWork(ITelegramBotClient bot, Message message, Driver driver)
+
+        static async Task<Message> StartOfWork(ITelegramBotClient bot, Message message)
         {
             string answer;
-            if (driver.HistoryRoutes.Count == 0 || driver.HistoryRoutes.Last().IsFinished())
+            using (var db = new DriverContextFactory().CreateDbContext())
             {
-                if (driver.OrdinalRoute == null)
+                var driver = (db.MyDrivers.Include(d => d.RoutesList).ThenInclude(cr => cr.Route).AsNoTracking().First(d => d.DriverId == message.From.Username));
+
+                if (driver.RoutesList is null || driver.RoutesList.Count == 0 || driver.RoutesList.Last().IsFinished())
                 {
-                    answer = "Use /set to set your Route";
+
+                    string routeId = message.Text.Split(" ")[1];
+                    var inputRoute = db.MyRoutes.FirstOrDefault(r => r.RouteId == routeId);
+                    if (inputRoute == null)
+                    {
+                        answer = "Use /start correctly";
+                    }
+                    else
+                    {
+                        db.MyCurRoutes.Add(new CurRoute(DateTime.Now, inputRoute.RouteId, driver.DriverId));
+                        await db.SaveChangesAsync();
+                        string[] text = inputRoute.Stops.Split(";");
+                        InlineKeyboardMarkup inlineKeyboard = new(
+                            new[]
+                            {
+
+                                new []
+                                {
+                                    InlineKeyboardButton.WithCallbackData(text[0], text[0]),
+                                    InlineKeyboardButton.WithCallbackData(text[^1], text[^1]),
+                                }
+                            });
+
+                        return await bot.SendTextMessageAsync(chatId: message.Chat.Id,
+                            text: "Choose your station",
+                            replyMarkup: inlineKeyboard);
+                    }
                 }
                 else
                 {
-
-                    return await ChooseDirection(bot, message, driver);
+                    answer = "You are alredy on a Route. To cancel it use /end";
                 }
-            }
-            else
-            {
-                answer = "You are alredy on a Route. To cancel it use /end";
             }
 
             return await bot.SendTextMessageAsync(message.Chat.Id, answer);
         }
-        static async Task<Message> ChooseDirection(ITelegramBotClient bot, Message message, Driver driver)
-        {
-            //TODO Direction By Inline Markup
 
-            var text = driver.OrdinalRoute.Stops.Split(";");
-            InlineKeyboardMarkup inlineKeyboard = new(
-                new[]
-                {
-
-                    new []
-                    {
-                        InlineKeyboardButton.WithCallbackData(text[0], text[0]),
-                        InlineKeyboardButton.WithCallbackData(text[^1], text[^1]),
-                    }
-                });
-
-            return await bot.SendTextMessageAsync(chatId: message.Chat.Id,
-                text: "Choose your station",
-                replyMarkup: inlineKeyboard);
-        }
         async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery)
         {
-            Driver driver;
-            try
-            {
-                driver = GetDriver(callbackQuery.From.Username);
-            }
-            catch
-            {
-                await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Acsess denied");
-                return;
-            }
-            string[] stops = driver.OrdinalRoute.Stops.Split(";");
 
-            if (callbackQuery.Data == stops[0]) driver.NewRoute(true);
-            else if (callbackQuery.Data == stops[^1]) driver.NewRoute(false);
-            else { await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Wrong station please use /start once again or contact administrator"); return; }
+            await using (var db = new DriverContextFactory().CreateDbContext())
+            {
+                CurRoute curRoute;
+                try
+                {
+                    curRoute = db.MyDrivers.Include(d => d.RoutesList)
+                                .Single(d => d.DriverId == callbackQuery.From.Username).RoutesList.Last();
+                    db.Entry(curRoute).Reference(c => c.Route).Load();
+                }
+                catch
+                {
+                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Acsess denied");
+                    return;
+                }
+                if (curRoute.IsFromFirstStop != null)
+                {
+                    await _botClient.SendTextMessageAsync(
+chatId: callbackQuery.Message.Chat.Id,
+text: $"Route first station is alredy set, if you want change it then /end current and create needed");
+                    return;
+                }
+
+                string[] stops = curRoute.Route.Stops.Split(";");
+                db.Update(curRoute);
+                if (callbackQuery.Data == stops[0])
+                {
+                    curRoute.IsFromFirstStop = true;
+                }
+                else if (callbackQuery.Data == stops[^1]) curRoute.IsFromFirstStop = true;
+                else
+                {
+                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id,
+                        "Please choose station from given options");
+                    return;
+                }
+
+                await db.SaveChangesAsync();
+            }
+
 
             await _botClient.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: $"Route started");
+                    chatId: callbackQuery.Message.Chat.Id,
+                    text: $"Route started");
+
+
+
         }
 
 
-        static async Task<Message> SendReplyAddKeyboard(ITelegramBotClient bot, Message message, Driver driver)
+        static async Task<Message> SendReplyAddKeyboard(ITelegramBotClient bot, Message message)
         {
 
-            if (driver.OrdinalRoute == null)
-                return await bot.SendTextMessageAsync(message.Chat.Id, "You must choose your route firstly");
-            if (driver.HistoryRoutes == null || driver.HistoryRoutes.Count == 0)
-                return await bot.SendTextMessageAsync(message.Chat.Id, "You must start your route firstly");
-            if (driver.HistoryRoutes.Last().IsFinished())
-            {
-                return await bot.SendTextMessageAsync(message.Chat.Id,
-                    "Your route have ended, to start a new one type /start");
-            }
             await using (var db = new DriverContextFactory().CreateDbContext())
             {
+                var curRoutes = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username).RoutesList;
 
-                var t = driver.HistoryRoutes.Last();
-                t.AddTimeOfStop(message.Date);
-                await db.SaveChangesAsync();
+                if (curRoutes == null || curRoutes.Count == 0)
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You must start your route firstly");
+
+                db.Entry(curRoutes.Last()).Reference(c => c.Route).Load();
+
+                if (curRoutes.Last().IsFromFirstStop == null || curRoutes.Last().IsFinished())
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You must choose your route firstly");
+          
             }
-            driver.HistoryRoutes.Last().AddTimeOfStop(message.Date);
             var replyKeyboardMarkup = new ReplyKeyboardMarkup(
                 new[]
                 {
@@ -158,7 +188,7 @@ namespace TgBot.Services
                 replyMarkup: replyKeyboardMarkup);
         }
 
-        static async Task<Message> SendReplyMinusKeyboard(ITelegramBotClient bot, Message message, Driver driver)
+        static async Task<Message> SendReplyMinusKeyboard(ITelegramBotClient bot, Message message)
         {
 
             var replyKeyboardMarkup = new ReplyKeyboardMarkup(
@@ -174,8 +204,10 @@ namespace TgBot.Services
             };
             await using (var db = new DriverContextFactory().CreateDbContext())
             {
-                var t = driver.HistoryRoutes.Last();
-                t.AddIncoming((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
+                var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username).RoutesList.Last();
+                db.Update(lastRoute);
+
+                lastRoute.AddIncoming((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
                 await db.SaveChangesAsync();
             }
 
@@ -184,36 +216,37 @@ namespace TgBot.Services
                 replyMarkup: replyKeyboardMarkup);
         }
 
-        static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message, Driver driver)
+        static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message)
         {
 
             using (var db = new DriverContextFactory().CreateDbContext())
             {
-                var t = driver.HistoryRoutes.Last();
-                t.AddLeaving((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
+                var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username).RoutesList.Last();
+                db.Update(lastRoute);
+                lastRoute.AddLeaving((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
+                lastRoute.AddTimeOfStop(message.Date);
                 await db.SaveChangesAsync();
+                db.Entry(lastRoute).Reference(c => c.Route).Load();
+                if (lastRoute.IsFinished())
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You succesfully finished route",
+                          replyMarkup: new ReplyKeyboardRemove());
+                else
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "Keep going",
+                           replyMarkup: new ReplyKeyboardRemove());
+
             }
-            return driver.HistoryRoutes.Last().IsFinished() ? await EndRoute(bot, message, driver)
-            : await bot.SendTextMessageAsync(message.Chat.Id, "Keep going", replyMarkup: new ReplyKeyboardRemove());
+
         }
 
-        static async Task<Message> EndRoute(ITelegramBotClient bot, Message message, Driver driver)
+        static async Task<Message> EndRoute(ITelegramBotClient bot, Message message)
         {
             using (var db = new DriverContextFactory().CreateDbContext())
             {
-
-                if (driver.HistoryRoutes.Last().IsFinished())
-                {
-                    await db.SaveChangesAsync();
-                    return await bot.SendTextMessageAsync(message.Chat.Id,
-                    "You succesfully completed the route",
+                var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username).RoutesList.Last();
+                db.Entry(lastRoute).Reference(c => c.Route).Load();
+                if (lastRoute.IsFinished()) return await bot.SendTextMessageAsync(message.Chat.Id, "Didn`t find a route",
                     replyMarkup: new ReplyKeyboardRemove());
-
-                }
-
-                db.Update(driver);
-                db.MyCurRoutes.Remove(driver.HistoryRoutes.Last());
-                driver.HistoryRoutes.Remove(driver.HistoryRoutes.Last());
+                db.MyCurRoutes.Remove(lastRoute);
                 await db.SaveChangesAsync();
                 return await bot.SendTextMessageAsync(message.Chat.Id,
                     "You succesfully canceled route",
@@ -221,22 +254,12 @@ namespace TgBot.Services
             }
 
         }
-
-        static async Task<Message> SetRoute(ITelegramBotClient bot, Message message, Driver driver)
-        {
-            if (driver.HistoryRoutes.Count != 0 && !driver.HistoryRoutes.Last().IsFinished()) return await bot.SendTextMessageAsync(message.Chat.Id, "End your route firstly");
-
-            if (! driver.SetRoute(message.Text.Split(" ")[^1]).Result) return await bot.SendTextMessageAsync(message.Chat.Id, "Bad route id, change denied");
-
-            return await bot.SendTextMessageAsync(message.Chat.Id, "Changed");
-        }
         static async Task<Message> Help(ITelegramBotClient bot, Message message)
         {
             const string usage = "Usage:\n" +
-                                 "/start  - starts new route\n" +
+                                 "/start [idOfRoute] - starts new route\n" +
                                  "/continue - marks a stop\n" +
-                                 "/end - cancels current route\n" +
-                                 "/set [idOfRoute] - sets your route \n";
+                                 "/end - cancels current route\n";
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
                 usage,
@@ -278,27 +301,17 @@ namespace TgBot.Services
 
         public Task HandleErrorAsync(Exception exception)
         {
-            string? ErrorMessage = exception switch
+            string errorMessage = exception switch
             {
                 ApiRequestException apiRequestException =>
                     $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
                 _ => exception.ToString()
             };
 
-            _logger.LogInformation(ErrorMessage);
+            _logger.LogError(exception, errorMessage);
             return Task.CompletedTask;
         }
 
-        static Driver GetDriver(string username)
-        {
-            Driver driver;
-            using (var db = new DriverContextFactory().CreateDbContext())
-            {
-                driver = db.MyDrivers.Include(d => d.OrdinalRoute).Include(d=>d.HistoryRoutes).ThenInclude(cr=>cr.Route).AsNoTracking().First(d=>d.DriverId==username);
 
-            }
-
-            return driver;
-        }
     }
 }

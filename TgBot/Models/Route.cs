@@ -6,18 +6,16 @@ namespace TgBot.Models
 {
     public class Route
     {
-        public Route(string routeId, string stops, byte numberOfStops)
+        public Route(string routeId, string stops)
         {
             RouteId = routeId;
             Stops = stops;
-            NumberOfStops = numberOfStops;
-
+         //   RoutesHistory ??= new List<CurRoute>();
         }
 
         public List<CurRoute> RoutesHistory { get; private set; }
         [Key] public string RouteId { get; private set; }
         [Column(TypeName = "nvarchar(max)")] public string Stops { get; private set; }
 
-        [Column(TypeName = "tinyint")] public byte NumberOfStops { get; private set; }
     }
 }

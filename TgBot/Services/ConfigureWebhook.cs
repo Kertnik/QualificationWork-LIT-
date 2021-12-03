@@ -37,6 +37,7 @@ namespace TgBot.Services
             // Since nobody else knows your bot's token, you can be pretty sure it's us.
             string? webhookAddress = @$"{_botConfig.HostAddress}/bot/{_botConfig.BotToken}";
             _logger.LogInformation("Setting webhook: ", webhookAddress);
+            
             await botClient.SetWebhookAsync(
                 webhookAddress,
                 allowedUpdates: Array.Empty<UpdateType>(),
