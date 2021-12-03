@@ -74,7 +74,7 @@ namespace TgBot.Services
                     }
                     catch
                     {
-                        return await bot.SendTextMessageAsync(message.Chat.Id, "Використовуйте /start коректно \nПриклад:/start M1 12");
+                        return await bot.SendTextMessageAsync(message.Chat.Id, "Use /start correctly \n Example:/start M1 12");
                     }
                     var entity = new CurRoute(DateTime.Now, inputRoute.RouteId, driver.DriverId);
                     db.MyCurRoutes.Add(entity);
@@ -92,13 +92,13 @@ namespace TgBot.Services
                         });
 
                     return await bot.SendTextMessageAsync(message.Chat.Id,
-                        "Оберіть початкову станцію",
+                        "Choose your station",
                         replyMarkup: inlineKeyboard);
 
                 }
                 else
                 {
-                    answer = "Ви вже почали маршрут. Щоб завершити його уведіть /end";
+                    answer = "You are alredy on a Route. To cancel it use /end";
                 }
             }
 
@@ -118,7 +118,7 @@ namespace TgBot.Services
                 }
                 catch
                 {
-                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Доступ заборонено");
+                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Acsess denied");
                     return;
                 }
 
@@ -126,7 +126,7 @@ namespace TgBot.Services
                 {
                     await _botClient.SendTextMessageAsync(
                         callbackQuery.Message.Chat.Id,
-                        "Початкова станція маршрута вже задана.\nЯкщо, Ви, хочите її змінити видаліть цей маршрут (/end) та почніть новий");
+                        "Route first station is alredy set, if you want change it then /end current and create needed");
                     return;
                 }
 
@@ -143,7 +143,7 @@ namespace TgBot.Services
                 else
                 {
                     await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id,
-                        "Будь-ласка обирайте маршрут з наданого переліку");
+                        "Please choose station from given options");
                     return;
                 }
 
@@ -153,7 +153,7 @@ namespace TgBot.Services
 
             await _botClient.SendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
-                "Маршрут розпочато. Використовуйте /continue для позначання зупинки");
+                "Route started. Use /continue to mark a stop");
         }
 
 
@@ -166,14 +166,14 @@ namespace TgBot.Services
 
                 if ((curRoutes == null) || (curRoutes.Count == 0))
                 {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви мусите спочатку почати маршрут");
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You must start your route firstly");
                 }
 
                 db.Entry(curRoutes.Last()).Reference(c => c.Route).Load();
 
                 if ((curRoutes.Last().IsFromFirstStop == null) || curRoutes.Last().IsFinished())
                 {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви мусите спочатку обрати початкову станцію");
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You must choose your route firstly");
                 }
             }
 
@@ -190,7 +190,7 @@ namespace TgBot.Services
             };
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
-                "Оберіть кількість нових пасажирів",
+                "Choose number of income",
                 replyMarkup: replyKeyboardMarkup);
         }
 
@@ -218,7 +218,7 @@ namespace TgBot.Services
             }
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
-                "Оберіть кількість пасажирів, котрі покинули транспорт",
+                "Choose number of outcome",
                 replyMarkup: replyKeyboardMarkup);
         }
 
@@ -235,11 +235,11 @@ namespace TgBot.Services
                 db.Entry(lastRoute).Reference(c => c.Route).Load();
                 if (lastRoute.IsFinished())
                 {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви успішно завершили маршрут",
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "You succesfully finished route",
                         replyMarkup: new ReplyKeyboardRemove());
                 }
 
-                return await bot.SendTextMessageAsync(message.Chat.Id, "Продовжуйте маршрут",
+                return await bot.SendTextMessageAsync(message.Chat.Id, "Keep going",
                     replyMarkup: new ReplyKeyboardRemove());
             }
         }
@@ -253,14 +253,14 @@ namespace TgBot.Services
                 db.Entry(lastRoute).Reference(c => c.Route).Load();
                 if (lastRoute.IsFinished())
                 {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Маршрут для видалення не знайдено",
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "Didn`t find a route",
                         replyMarkup: new ReplyKeyboardRemove());
                 }
 
                 db.MyCurRoutes.Remove(lastRoute);
                 await db.SaveChangesAsync();
                 return await bot.SendTextMessageAsync(message.Chat.Id,
-                    "Ви, успішно скасували маршрут",
+                    "You succesfully canceled route",
                     replyMarkup: new ReplyKeyboardRemove());
             }
         }
@@ -268,10 +268,9 @@ namespace TgBot.Services
         static async Task<Message> Help(ITelegramBotClient bot, Message message)
         {
             const string usage = "Usage:\n" +
-                                 "/start [кодМаршрута] [кількістьПасажирів] - починає новий маршрут\n" +
-                                 "/continue - позначає зупинку\n" +
-                                 "/end - скасовує маршрут\n"
-                                 +"/usage - показує цей текст";
+                                 "/start [idOfRoute] [numberOfPassangers] - starts new route\n" +
+                                 "/continue - marks a stop\n" +
+                                 "/end - cancels current route\n";
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
                 usage,
