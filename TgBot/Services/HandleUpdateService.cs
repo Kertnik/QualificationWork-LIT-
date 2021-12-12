@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ namespace TgBot.Services
             _logger.LogInformation($"Receive message type: {message.Type}");
 
 
-            using (var db = new TgBotContext())
+            await using (var db = new TgBotContext())
             {
                 if (db.MyDrivers.FirstOrDefault(d => d.DriverId == message.From.Username) == null)
                 {
@@ -39,18 +40,45 @@ namespace TgBot.Services
 
             message.Text = message.Text.Trim();
 
-            var action = message.Text.Split(' ').First() switch
+            Task<Message>? action = message.Text.Split(' ').First() switch
             {
                 "/start" => StartOfWork(_botClient, message),
                 "/continue" => SendReplyAddKeyboard(_botClient, message),
                 "-" => RemoveKeyboard(_botClient, message),
                 "+" => SendReplyMinusKeyboard(_botClient, message),
                 "/end" => EndRoute(_botClient, message),
+                "/routes" => ListRoute(_botClient, message),
                 _ => Help(_botClient, message)
             };
 
             var sentMessage = await action;
             _logger.LogInformation("The message was sent with id: {sentMessageId}", sentMessage.MessageId);
+        }
+
+        static async Task<Message> ListRoute(ITelegramBotClient botClient, Message message)
+        {
+            using (var db = new TgBotContext())
+            {
+                var arr = db.MyRoutes.ToArray();
+                var inlineKeyboardMarkup = new InlineKeyboardButton[arr.Length][];
+                for (int i = 0; i < inlineKeyboardMarkup.Length; i++)
+                {
+                    string[] stops = arr[i].Stops.Split(';');
+                    inlineKeyboardMarkup[i] = new[] { InlineKeyboardButton.WithCallbackData(stops[0] + "→" + stops[^1], arr[i].RouteId) };
+                }
+
+                return await botClient.SendTextMessageAsync(
+                    message.Chat.Id,
+                    "Маршрут розпочато. Використовуйте /continue для позначання зупинки", replyMarkup: new InlineKeyboardMarkup(inlineKeyboardMarkup));
+            }
+
+        }
+        private async Task BotOnCallbackQueryReceived(CallbackQuery updateCallbackQuery)
+        {
+            await using (var db = new TgBotContext())
+            {
+                await _botClient.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, updateCallbackQuery.Data + ":\n" + string.Join('\n', db.MyRoutes.Find(updateCallbackQuery.Data).Stops.Split(";")));
+            }
         }
 
         static async Task<Message> StartOfWork(ITelegramBotClient bot, Message message)
@@ -67,10 +95,10 @@ namespace TgBot.Services
                     byte startNumber;
                     try
                     {
-                        var messageValues = message.Text.Split(" ");
+                        string[] messageValues = message.Text.Split(" ");
                         inputRoute = db.MyRoutes.First(r => r.RouteId == messageValues[1]);
                         startNumber = Convert.ToByte(messageValues[2]);
-
+                        if (startNumber < 0) throw new ArgumentException("Minus argument is not acceptable");
                     }
                     catch
                     {
@@ -79,21 +107,13 @@ namespace TgBot.Services
                     var entity = new CurRoute(DateTime.Now, inputRoute.RouteId, driver.DriverId);
                     db.MyCurRoutes.Add(entity);
                     entity.AddIncoming(startNumber);
+                    entity.AddLeaving(0);
                     await db.SaveChangesAsync();
-                    string[] text = inputRoute.Stops.Split(";");
-                    InlineKeyboardMarkup inlineKeyboard = new(
-                        new[]
-                        {
-                                new[]
-                                {
-                                    InlineKeyboardButton.WithCallbackData(text[0], text[0]),
-                                    InlineKeyboardButton.WithCallbackData(text[^1], text[^1])
-                                }
-                        });
 
-                    return await bot.SendTextMessageAsync(message.Chat.Id,
-                        "Оберіть початкову станцію",
-                        replyMarkup: inlineKeyboard);
+
+                    return await bot.SendTextMessageAsync(
+                         message.Chat.Id,
+                         "Маршрут розпочато. Використовуйте /continue для позначання зупинки");
 
                 }
                 else
@@ -105,60 +125,11 @@ namespace TgBot.Services
             return await bot.SendTextMessageAsync(message.Chat.Id, answer);
         }
 
-        async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery)
-        {
-            await using (var db = new TgBotContext())
-            {
-                CurRoute curRoute;
-                try
-                {
-                    curRoute = db.MyDrivers.Include(d => d.RoutesList)
-                                 .Single(d => d.DriverId == callbackQuery.From.Username).RoutesList.Last();
-                    db.Entry(curRoute).Reference(c => c.Route).Load();
-                }
-                catch
-                {
-                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Доступ заборонено");
-                    return;
-                }
-
-                if (curRoute.IsFromFirstStop != null)
-                {
-                    await _botClient.SendTextMessageAsync(
-                        callbackQuery.Message.Chat.Id,
-                        "Початкова станція маршрута вже задана.\nЯкщо, Ви, хочите її змінити видаліть цей маршрут (/end) та почніть новий");
-                    return;
-                }
-
-                string[] stops = curRoute.Route.Stops.Split(";");
-                db.Update(curRoute);
-                if (callbackQuery.Data == stops[0])
-                {
-                    curRoute.IsFromFirstStop = true;
-                }
-                else if (callbackQuery.Data == stops[^1])
-                {
-                    curRoute.IsFromFirstStop = true;
-                }
-                else
-                {
-                    await _botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id,
-                        "Будь-ласка обирайте маршрут з наданого переліку");
-                    return;
-                }
-
-                await db.SaveChangesAsync();
-            }
-
-
-            await _botClient.SendTextMessageAsync(
-                callbackQuery.Message.Chat.Id,
-                "Маршрут розпочато. Використовуйте /continue для позначання зупинки");
-        }
 
 
         static async Task<Message> SendReplyAddKeyboard(ITelegramBotClient bot, Message message)
         {
+            string nameOfStation;
             await using (var db = new TgBotContext())
             {
                 var curRoutes = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
@@ -170,11 +141,25 @@ namespace TgBot.Services
                 }
 
                 db.Entry(curRoutes.Last()).Reference(c => c.Route).Load();
+                if (curRoutes.Last().IsFinished()) return await bot.SendTextMessageAsync(message.Chat.Id, "Ви мусите спочатку почати маршрут");
 
-                if ((curRoutes.Last().IsFromFirstStop == null) || curRoutes.Last().IsFinished())
+                if (curRoutes.Last().NumberOfIncoming.Split(";").Length ==
+                    curRoutes.Last().Route.Stops.Split(";").Length - 1)
                 {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви мусите спочатку обрати початкову станцію");
+                    curRoutes.Last().AddIncoming(0);
+                    curRoutes.Last().AddTimeOfStop(DateTime.Now);
+                    curRoutes.Last().AddLeaving(
+                        (byte)(curRoutes.Last().NumberOfIncoming.Split(";").Select(x => Convert.ToInt32(x)).Sum()
+                               - curRoutes.Last().NumberOfLeaving.Split(";").Select(x => Convert.ToInt32(x)).Sum()));
+                    await db.SaveChangesAsync();
+                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви успішно завершили маршрут",
+                        replyMarkup: new ReplyKeyboardRemove());
                 }
+
+                string? numberOfLeaving = curRoutes.Last().NumberOfLeaving;
+
+                nameOfStation = curRoutes.Last().Route.Stops.Split(';')[numberOfLeaving.Split(";").Length];
+
             }
 
             var replyKeyboardMarkup = new ReplyKeyboardMarkup(
@@ -190,7 +175,7 @@ namespace TgBot.Services
             };
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
-                "Оберіть кількість нових пасажирів",
+                "Станція:" + nameOfStation + ". Оберіть кількість нових пасажирів",
                 replyMarkup: replyKeyboardMarkup);
         }
 
@@ -224,29 +209,25 @@ namespace TgBot.Services
 
         static async Task<Message> RemoveKeyboard(ITelegramBotClient bot, Message message)
         {
-            using (var db = new TgBotContext())
+            await using (var db = new TgBotContext())
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
                 db.Update(lastRoute);
                 lastRoute.AddLeaving((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
-                lastRoute.AddTimeOfStop(message.Date);
+                lastRoute.AddTimeOfStop(DateTime.Now);
                 await db.SaveChangesAsync();
-                db.Entry(lastRoute).Reference(c => c.Route).Load();
-                if (lastRoute.IsFinished())
-                {
-                    return await bot.SendTextMessageAsync(message.Chat.Id, "Ви успішно завершили маршрут",
-                        replyMarkup: new ReplyKeyboardRemove());
-                }
+                await db.Entry(lastRoute).Reference(c => c.Route).LoadAsync();
 
-                return await bot.SendTextMessageAsync(message.Chat.Id, "Продовжуйте маршрут",
+
+                return await bot.SendTextMessageAsync(message.Chat.Id, "Продовжуйте маршрут (/continue)",
                     replyMarkup: new ReplyKeyboardRemove());
             }
         }
 
         static async Task<Message> EndRoute(ITelegramBotClient bot, Message message)
         {
-            using (var db = new TgBotContext())
+            await using (var db = new TgBotContext())
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
@@ -270,8 +251,10 @@ namespace TgBot.Services
             const string usage = "Usage:\n" +
                                  "/start [кодМаршрута] [кількістьПасажирів] - починає новий маршрут\n" +
                                  "/continue - позначає зупинку\n" +
-                                 "/end - скасовує маршрут\n"
-                                 +"/usage - показує цей текст";
+                                 "/end - скасовує маршрут\n" +
+                                 "/routes - список маршруты\n"
+                                 + "/usage - показує цей текст\n" +
+                                 "Увага! код позначається латиницею";
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
                 usage,
@@ -288,9 +271,9 @@ namespace TgBot.Services
                 // UpdateType.ShippingQuery:
                 // UpdateType.PreCheckoutQuery:
                 // UpdateType.Poll:
+                UpdateType.CallbackQuery => BotOnCallbackQueryReceived(update.CallbackQuery),
                 UpdateType.Message => BotOnMessageReceived(update.Message),
                 UpdateType.EditedMessage => BotOnMessageReceived(update.EditedMessage),
-                UpdateType.CallbackQuery => BotOnCallbackQueryReceived(update.CallbackQuery),
                 _ => UnknownUpdateHandlerAsync(update)
             };
             try
@@ -302,6 +285,8 @@ namespace TgBot.Services
                 await HandleErrorAsync(exception);
             }
         }
+
+
 
 
         Task UnknownUpdateHandlerAsync(Update update)

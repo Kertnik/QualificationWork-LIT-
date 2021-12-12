@@ -18,8 +18,7 @@ namespace TgBot.Models
         [Column(TypeName = "varchar(max)")]
         [BackingField("TimeOfStops")]
         public string? TimeOfStops { get; protected set; }
-        [Column(TypeName = "bit")]
-        public bool? IsFromFirstStop { get; set; }
+  
         [Column(TypeName = "varchar(256)")]
         public string? NumberOfLeaving { get; protected set; }
 
@@ -45,7 +44,7 @@ namespace TgBot.Models
 
       
 
-        public bool IsFinished() => Route.Stops.Split(";").Length == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length);
+        public bool IsFinished() => Route.Stops.Split(";").Length == (string.IsNullOrEmpty(TimeOfStops) ? 0 : TimeOfStops.Split(";").Length+1);
 
 
         public void AddTimeOfStop(DateTime date)

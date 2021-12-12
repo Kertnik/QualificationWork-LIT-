@@ -23,6 +23,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="ngrok.exe" />
+	  <None Remove="runNgRok.bat" />
+	</ItemGroup>
+
+	<ItemGroup>
 		    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.1" />
     <PackageReference Include="Azure.Identity" Version="1.5.0" />
 <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
@@ -48,5 +53,7 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

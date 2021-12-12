@@ -24,11 +24,11 @@ namespace TgBot.Migrations
 
             modelBuilder.Entity("TgBot.Models.CurRoute", b =>
                 {
-                    b.Property<long>("RecordID")
+                    b.Property<long>("RecordId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordId"), 1L, 1);
 
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
@@ -36,9 +36,6 @@ namespace TgBot.Migrations
                     b.Property<string>("DriverId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool?>("IsFromFirstStop")
-                        .HasColumnType("bit");
 
                     b.Property<string>("NumberOfIncoming")
                         .HasColumnType("varchar(256)");
@@ -53,7 +50,7 @@ namespace TgBot.Migrations
                     b.Property<string>("TimeOfStops")
                         .HasColumnType("varchar(max)");
 
-                    b.HasKey("RecordID");
+                    b.HasKey("RecordId");
 
                     b.HasIndex("DriverId");
 
