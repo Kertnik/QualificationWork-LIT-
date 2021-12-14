@@ -29,11 +29,9 @@ namespace TgBot
         {
             services.AddDbContext<TgBotContext>(options =>
                 options.UseSqlServer(ConnectionString));
-            var a = new TgBotContext(new DbContextOptionsBuilder<TgBotContext>()
-                                     .UseSqlServer(ConnectionString).Options);
 
-            if (a.Database.EnsureCreated()) throw new AccessViolationException();
-            a.Database.Migrate();
+            if (new TgBotContext(new DbContextOptionsBuilder<TgBotContext>()
+                                .UseSqlServer(ConnectionString).Options).Database.EnsureCreated()) throw new AccessViolationException();
             // There are several strategies for completing asynchronous tasks during startup.
             // Some of them could be found in this article https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-part-1/
             // We are going to use IHostedService to add and later remove Webhook
