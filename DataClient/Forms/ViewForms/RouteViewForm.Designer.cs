@@ -37,12 +37,14 @@ namespace DataClient.Forms.ViewForms
             this.routesPieChart = new LiveCharts.WinForms.PieChart();
             this.RoutesListBox = new System.Windows.Forms.ComboBox();
             this.Total = new System.Windows.Forms.Label();
+            this.Screenshot = new System.Windows.Forms.Button();
+            this.SaveScreenshot = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
             // TypeOfRoutesListBox
             // 
             this.TypeOfRoutesListBox.FormattingEnabled = true;
-            this.TypeOfRoutesListBox.Location = new System.Drawing.Point(59, 12);
+            this.TypeOfRoutesListBox.Location = new System.Drawing.Point(12, 12);
             this.TypeOfRoutesListBox.Name = "TypeOfRoutesListBox";
             this.TypeOfRoutesListBox.Size = new System.Drawing.Size(239, 31);
             this.TypeOfRoutesListBox.TabIndex = 0;
@@ -68,7 +70,7 @@ namespace DataClient.Forms.ViewForms
             // 
             this.RoutesListBox.Enabled = false;
             this.RoutesListBox.FormattingEnabled = true;
-            this.RoutesListBox.Location = new System.Drawing.Point(378, 12);
+            this.RoutesListBox.Location = new System.Drawing.Point(277, 12);
             this.RoutesListBox.Name = "RoutesListBox";
             this.RoutesListBox.Size = new System.Drawing.Size(239, 31);
             this.RoutesListBox.TabIndex = 3;
@@ -82,10 +84,21 @@ namespace DataClient.Forms.ViewForms
             this.Total.TabIndex = 4;
             this.Total.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // Screenshot
+            // 
+            this.Screenshot.Location = new System.Drawing.Point(545, 12);
+            this.Screenshot.Name = "Screenshot";
+            this.Screenshot.Size = new System.Drawing.Size(141, 31);
+            this.Screenshot.TabIndex = 5;
+            this.Screenshot.Text = "📷";
+            this.Screenshot.UseVisualStyleBackColor = true;
+            this.Screenshot.Click += new System.EventHandler(this.Screenshot_Click);
+            // 
             // RouteViewForm
             // 
             this.BackColor = System.Drawing.Color.Azure;
             this.ClientSize = new System.Drawing.Size(698, 550);
+            this.Controls.Add(this.Screenshot);
             this.Controls.Add(this.Total);
             this.Controls.Add(this.RoutesListBox);
             this.Controls.Add(this.routesPieChart);
@@ -106,5 +119,7 @@ namespace DataClient.Forms.ViewForms
         private LiveCharts.WinForms.PieChart routesPieChart;
         private ComboBox RoutesListBox;
         private Label Total;
+        private Button Screenshot;
+        private SaveFileDialog SaveScreenshot;
     }
 }

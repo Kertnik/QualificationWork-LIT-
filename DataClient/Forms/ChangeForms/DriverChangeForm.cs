@@ -1,111 +1,137 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using DataClient.Models;
 
-namespace DataClient.Forms.ChangeForms
+namespace DataClient.Forms.ChangeForms;
+
+public partial class DriverChangeForm : Form
 {
-    public partial class DriverChangeForm : Form
+    public DriverChangeForm()
     {
+        InitializeComponent();
+    }
 
-        public DriverChangeForm()
+
+    void DriverChange_Load(object sender, EventArgs e)
+    {
+        using (var db = new TgBotContext())
         {
+            var bindings = new BindingSource();
+            foreach (var variable in db.MyDrivers) bindings.Add(variable.DriverId);
 
-            InitializeComponent();
+            bindings.Add("New...");
+            ToolStripDriversComboBox.ComboBox.DataSource = bindings;
+        }
+    }
+
+    async void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        if (ToolStripDriversComboBox.SelectedItem == "New") return;
+        using (var db = new TgBotContext())
+        {
+            db.MyDrivers.Remove(db.MyDrivers.Find(ToolStripDriversComboBox.SelectedItem));
+            await db.SaveChangesAsync();
+            var bindings = new BindingSource();
+            foreach (var variable in db.MyDrivers) bindings.Add(variable.DriverId);
+            bindings.Add("New...");
+            ToolStripDriversComboBox.ComboBox.DataSource = bindings;
+        }
+    }
+
+
+    void toolStripComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ToolStripDriversComboBox.SelectedItem == "New...")
+        {
+            Id.Enabled = true;
+            DriverName.Text = "";
+            Id.Text = "";
+            return;
         }
 
-
-
-        private void DriverChange_Load(object sender, EventArgs e)
+        using (var db = new TgBotContext())
         {
-            using (var db = new TgBotContext())
-            {
-                var bindings = new BindingSource();
-                foreach (var variable in db.MyDrivers)
-                {
-                    bindings.Add(variable.DriverId);
-                }
-
-                bindings.Add("New...");
-                ToolStripDriversComboBox.ComboBox.DataSource = bindings;
-            }
+            Id.Enabled = false;
+            var user = db.MyDrivers.Find(ToolStripDriversComboBox.SelectedItem);
+            Id.Text = user.DriverId;
+            DriverName.Text = user.Name;
         }
+    }
 
-        private async void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (ToolStripDriversComboBox.SelectedItem == "New") return;
-            using (var db = new TgBotContext())
-            {
-                db.MyDrivers.Remove(db.MyDrivers.Find(ToolStripDriversComboBox.SelectedItem));
-                await db.SaveChangesAsync();
-                var bindings = new BindingSource();
-                foreach (var variable in db.MyDrivers)
-                {
-                    bindings.Add(variable.DriverId);
-                }
-                bindings.Add("New...");
-                ToolStripDriversComboBox.ComboBox.DataSource = bindings;
-            }
-        }
-
-
-
-        private void toolStripComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    async void saveToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        using (var db = new TgBotContext())
         {
             if (ToolStripDriversComboBox.SelectedItem == "New...")
             {
-                Id.Enabled = true;
-                DriverName.Text = "";
-                Id.Text = "";
-                return;
+                if (string.IsNullOrWhiteSpace(DriverName.Text) | string.IsNullOrWhiteSpace(Id.Text))
+                {
+                    MessageBox.Show("Ви мусите заповнити усі поля", "Помилка");
+                    return;
+                }
+
+                if (db.MyDrivers.Any(x => x.DriverId == Id.Text))
+                {
+                    MessageBox.Show("Такий ID вже існує", "Помилка");
+                    return;
+                }
+
+                db.MyDrivers.Add(new MyDriver { Name = DriverName.Text, DriverId = Id.Text });
+                await db.SaveChangesAsync();
             }
-            using (var db = new TgBotContext())
+            else
             {
-                Id.Enabled = false;
-                var user = db.MyDrivers.Find(ToolStripDriversComboBox.SelectedItem);
-                Id.Text = user.DriverId;
-                DriverName.Text = user.Name;
+                var driver = await db.MyDrivers.FindAsync(ToolStripDriversComboBox.SelectedItem);
+                driver.Name = DriverName.Text;
+                driver.DriverId = Id.Text;
+                await db.SaveChangesAsync();
             }
-        }
 
-        private async void saveToolStripMenuItem_Click(object sender, EventArgs e)
+            var bindings = new BindingSource();
+            foreach (var variable in db.MyDrivers) bindings.Add(variable.DriverId);
+            bindings.Add("New...");
+            ToolStripDriversComboBox.ComboBox.DataSource = bindings;
+        }
+    }
+
+
+    void Id_TextChanged_1(object sender, EventArgs a)
+    {
+        if (a is KeyPressEventArgs e)
         {
-            using (var db = new TgBotContext())
+            if (Encoding.UTF8.GetByteCount(new[] { e.KeyChar }) > 1)
             {
-
-                if (ToolStripDriversComboBox.SelectedItem == "New...")
-                {
-                    if (string.IsNullOrWhiteSpace(DriverName.Text) | string.IsNullOrWhiteSpace(Id.Text))
-                    {
-                        MessageBox.Show("Ви мусите заповнити усі поля", "Помилка");
-                        return;
-                    }
-                    if(db.MyDrivers.Any(x=>x.DriverId==Id.Text)){MessageBox.Show("Такий ID вже існує", "Помилка");
-                        return;}
-                    db.MyDrivers.Add(new MyDriver { Name = DriverName.Text, DriverId = Id.Text });
-                    await db.SaveChangesAsync();
-                }
-                else
-                {
-                    var driver = db.MyDrivers.Find(ToolStripDriversComboBox.SelectedItem);
-                    driver.Name = DriverName.Text;
-                    driver.DriverId = Id.Text;
-                    await db.SaveChangesAsync();
-                }
-                var bindings = new BindingSource();
-                foreach (var variable in db.MyDrivers)
-                {
-                    bindings.Add(variable.DriverId);
-                }
-                bindings.Add("New...");
-                ToolStripDriversComboBox.ComboBox.DataSource = bindings;
-
+                e.Handled = true;
             }
         }
+    }
 
-        private void Id_TextChanged(object sender, EventArgs e)
+    void Id_KeyPress(object sender, KeyPressEventArgs e)
+    {
+        var key = (Keys)e.KeyChar;
+
+        if (key == Keys.Back)
         {
-
+            return;
         }
+
+        if (!(IsEnglishOrNumberCharacter(e.KeyChar) || IsUkranianOrNumberCharacter(e.KeyChar)))
+        {
+            e.Handled = true;
+        }
+    }
+
+    static bool IsEnglishOrNumberCharacter(char ch)
+    {
+        return (ch >= '0' & ch <= '9') || (ch >= 'a' & ch <= 'z') || (ch >= 'A' & ch <= 'Z');
+    }
+
+    static bool IsUkranianOrNumberCharacter(char ch)
+    {
+        return (ch == ' ') || (ch >= 'а' & ch <= 'я') || (ch >= 'А' & ch <= 'Я') || (ch >= '0' & ch <= '9'
+            | ch == 'Я' | ch == 'Ґ' | ch == 'Є' | ch == 'І' | ch == 'Ї' | ch == 'я' | ch == '\'' | ch == 'є' |
+            ch == 'і' | ch == 'ї' | ch == 'ґ');
     }
 }

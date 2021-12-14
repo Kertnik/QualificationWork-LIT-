@@ -3,49 +3,51 @@ using System.Windows.Forms;
 using DataClient.Forms.ChangeForms;
 using DataClient.Forms.ViewForms;
 
-namespace DataClient.Forms
+namespace DataClient.Forms;
+
+public partial class ChooseForm : Form
 {
-    public partial class ChooseForm : Form
+    public ChooseForm()
     {
+        new WelcomeForm().ShowDialog(this);
 
-        public ChooseForm()
-        {
-
-            new WelcomeForm().ShowDialog(this);
-
-            InitializeComponent();
-        }
-
-        
-
-        private void FormChoose_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Application.ExitThread();
-        }
-
-        private void ViewByRoute_Click(object sender, EventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            new RouteViewForm(this).ShowDialog();
-        }
+        InitializeComponent();
+    }
 
 
-        private void ViewByDriver_Click(object sender, EventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            new DriverViewForm(this).ShowDialog();
-        }
+    void FormChoose_FormClosed(object sender, FormClosedEventArgs e)
+    {
+        Application.ExitThread();
+    }
 
-        private void UpdateByRoute_Click(object sender, EventArgs e)
-        {       new RouteChangeForm().ShowDialog();
+    void ViewByRoute_Click(object sender, EventArgs e)
+    {
+        Cursor.Current = Cursors.WaitCursor;
+        Hide();
+        new WaitForm(() => new RouteViewForm().ShowDialog(), "Підготовка макету").ShowDialog();
+        Show();
+    }
 
-        }
 
-        private void UpdateByDriver_Click(object sender, EventArgs e)
-        {
-            new DriverChangeForm().ShowDialog();
-        }
+    void ViewByDriver_Click(object sender, EventArgs e)
+    {
+        Cursor.Current = Cursors.WaitCursor;
+        Hide();
+        new WaitForm(() => new DriverViewForm(this).ShowDialog(), "Підготовка макету").ShowDialog();
+        Show();
+    }
 
-      
+    void UpdateByRoute_Click(object sender, EventArgs e)
+    {
+        Hide();
+        new RouteChangeForm().ShowDialog();
+        Show();
+    }
+
+    void UpdateByDriver_Click(object sender, EventArgs e)
+    {
+        Hide();
+        new DriverChangeForm().ShowDialog();
+        Show();
     }
 }

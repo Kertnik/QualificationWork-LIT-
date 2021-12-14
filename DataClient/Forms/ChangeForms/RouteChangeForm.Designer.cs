@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RouteChangeForm));
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.ActionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -37,6 +38,7 @@
             this.Id = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.StopsList = new System.Windows.Forms.TextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.MainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +49,7 @@
             this.toolStripRoutesComboBox});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
-            this.MainMenu.Size = new System.Drawing.Size(256, 27);
+            this.MainMenu.Size = new System.Drawing.Size(330, 27);
             this.MainMenu.TabIndex = 1;
             this.MainMenu.Text = "MainMenu";
             // 
@@ -84,7 +86,7 @@
             // 
             this.Id.Location = new System.Drawing.Point(43, 41);
             this.Id.Name = "Id";
-            this.Id.Size = new System.Drawing.Size(201, 30);
+            this.Id.Size = new System.Drawing.Size(275, 30);
             this.Id.TabIndex = 2;
             this.Id.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Id_KeyPress);
             // 
@@ -105,15 +107,23 @@
             this.StopsList.Name = "StopsList";
             this.StopsList.ReadOnly = true;
             this.StopsList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.StopsList.Size = new System.Drawing.Size(228, 344);
+            this.StopsList.Size = new System.Drawing.Size(302, 344);
             this.StopsList.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.StopsList, "Кожну нову станцію потрібно починати \r\nз нового рядка (Enter) ");
+            this.StopsList.TextChanged += new System.EventHandler(this.StopsList_TextChanged);
+            this.StopsList.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.StopsList_KeyPress);
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip1.ToolTipTitle = "Підказка";
             // 
             // RouteChangeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(256, 433);
+            this.ClientSize = new System.Drawing.Size(330, 433);
             this.Controls.Add(this.StopsList);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.Id);
@@ -144,5 +154,6 @@
         private System.Windows.Forms.TextBox Id;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox StopsList;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
