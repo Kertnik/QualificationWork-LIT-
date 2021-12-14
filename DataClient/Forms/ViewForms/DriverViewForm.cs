@@ -8,11 +8,10 @@ namespace DataClient.Forms.ViewForms
 {
     public partial class DriverViewForm : Form
     {
-        readonly Form parent;
+
 
         public DriverViewForm(Form parent)
         {
-            this.parent = parent;
             InitializeComponent();
             
             routesPieChart.LegendLocation = LegendLocation.Right;

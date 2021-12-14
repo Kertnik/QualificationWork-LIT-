@@ -1,2 +1,2 @@
-ECHO
-ngrok http -host-header=localhost 31623
+ECHO 
+ngrok http --host-header=localhost 31623 

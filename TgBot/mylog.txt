@@ -1,0 +1,13 @@
+t=2021-12-14T08:24:30+0200 lvl=info msg="no configuration paths supplied"
+t=2021-12-14T08:24:30+0200 lvl=info msg="using configuration at default config path" path=C:\\Users\\Nikita/.ngrok2/ngrok.yml
+t=2021-12-14T08:24:30+0200 lvl=info msg="open config file" path=C:\\Users\\Nikita\\.ngrok2\\ngrok.yml err=nil
+t=2021-12-14T08:24:30+0200 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040
+t=2021-12-14T08:24:30+0200 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2021-12-14T08:24:30+0200 lvl=info msg="client session established" obj=csess id=6efbfc1fe23c
+t=2021-12-14T08:24:31+0200 lvl=info msg="started tunnel" obj=tunnels name="command_line (http)" addr=http://localhost:31623 url=http://1ce4-46-98-145-98.ngrok.io
+t=2021-12-14T08:24:31+0200 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:31623 url=https://1ce4-46-98-145-98.ngrok.io
+t=2021-12-14T08:26:33+0200 lvl=info msg="Got update major command" obj=consoleui
+t=2021-12-14T08:26:35+0200 lvl=info msg="Got quit command" obj=consoleui
+t=2021-12-14T08:26:35+0200 lvl=info msg="received stop request" obj=app stopReq="{err:<nil> restart:false}"
+t=2021-12-14T08:26:35+0200 lvl=info msg="session closing" obj=tunnels.session err=nil
+t=2021-12-14T08:26:35+0200 lvl=info msg="accept failed" obj=csess id=6efbfc1fe23c err="reconnecting session closed"

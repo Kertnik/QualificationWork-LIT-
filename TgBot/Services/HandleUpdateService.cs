@@ -48,11 +48,42 @@ namespace TgBot.Services
                 "+" => SendReplyMinusKeyboard(_botClient, message),
                 "/end" => EndRoute(_botClient, message),
                 "/routes" => ListRoute(_botClient, message),
+                "/undo" => Undo(_botClient, message),
                 _ => Help(_botClient, message)
             };
 
             var sentMessage = await action;
             _logger.LogInformation("The message was sent with id: {sentMessageId}", sentMessage.MessageId);
+        }
+
+        static async Task<Message> Undo(ITelegramBotClient botClient, Message message)
+        {
+            using (var db = new TgBotContext())
+            {
+                //    var driver = db.MyDrivers.Include(d => d.RoutesList).ThenInclude(cr => cr.Route).AsNoTracking()
+                //                   .First(d => d.DriverId == message.From.Username);
+                var driver = db.MyDrivers.Find(message.From.Username);
+                await db.Entry(driver).Collection(d => d.RoutesList).LoadAsync();
+
+                if (driver.RoutesList is null || (driver.RoutesList.Count == 0))
+                {
+                    return await botClient.SendTextMessageAsync(message.Chat.Id, "Даних для видалення не знайдено");
+                }
+
+                db.Entry(driver.RoutesList.Last()).Reference(r => r.Route).Load();
+                if (driver.RoutesList.Last().IsFinished())return await botClient.SendTextMessageAsync(message.Chat.Id, "Даних для видалення не знайдено");
+                if (driver.RoutesList.Last().DeleteFakeData())
+                {
+                    await db.SaveChangesAsync();
+                    return await botClient.SendTextMessageAsync(message.Chat.Id, "Дані видалено",
+                        replyMarkup: new ReplyKeyboardRemove());
+                }
+                else
+                {
+                    return await botClient.SendTextMessageAsync(message.Chat.Id, "Дані про першу станцію не можна редагувати \n Підказка: використовуйте /end для видалення поточного маршруту",
+                        replyMarkup: new ReplyKeyboardRemove());
+                }
+            }
         }
 
         static async Task<Message> ListRoute(ITelegramBotClient botClient, Message message)
@@ -130,6 +161,7 @@ namespace TgBot.Services
         static async Task<Message> SendReplyAddKeyboard(ITelegramBotClient bot, Message message)
         {
             string nameOfStation;
+
             await using (var db = new TgBotContext())
             {
                 var curRoutes = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
@@ -142,23 +174,24 @@ namespace TgBot.Services
 
                 db.Entry(curRoutes.Last()).Reference(c => c.Route).Load();
                 if (curRoutes.Last().IsFinished()) return await bot.SendTextMessageAsync(message.Chat.Id, "Ви мусите спочатку почати маршрут");
-
+                string[] numberOfLeaving = curRoutes.Last().NumberOfLeaving.Split(";");
+                string[] numberOfIncoming = curRoutes.Last().NumberOfIncoming.Split(";");
+                if(numberOfIncoming.Length!= numberOfLeaving.Length) return await bot.SendTextMessageAsync(message.Chat.Id, "Введіть усі дані");
                 if (curRoutes.Last().NumberOfIncoming.Split(";").Length ==
                     curRoutes.Last().Route.Stops.Split(";").Length - 1)
                 {
                     curRoutes.Last().AddIncoming(0);
                     curRoutes.Last().AddTimeOfStop(DateTime.Now);
                     curRoutes.Last().AddLeaving(
-                        (byte)(curRoutes.Last().NumberOfIncoming.Split(";").Select(x => Convert.ToInt32(x)).Sum()
-                               - curRoutes.Last().NumberOfLeaving.Split(";").Select(x => Convert.ToInt32(x)).Sum()));
+                        (byte)(numberOfIncoming.Select(x => Convert.ToInt32(x)).Sum()
+                               - numberOfLeaving.Select(x => Convert.ToInt32(x)).Sum()));
                     await db.SaveChangesAsync();
                     return await bot.SendTextMessageAsync(message.Chat.Id, "Ви успішно завершили маршрут",
                         replyMarkup: new ReplyKeyboardRemove());
                 }
+                
 
-                string? numberOfLeaving = curRoutes.Last().NumberOfLeaving;
-
-                nameOfStation = curRoutes.Last().Route.Stops.Split(';')[numberOfLeaving.Split(";").Length];
+                nameOfStation = curRoutes.Last().Route.Stops.Split(';')[numberOfLeaving.Length];
 
             }
 
@@ -194,8 +227,12 @@ namespace TgBot.Services
             };
             await using (var db = new TgBotContext())
             {
-                var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
+                   var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
+                   string[] numberOfLeaving = lastRoute.NumberOfLeaving.Split(";");
+                   string[] numberOfIncoming = lastRoute.NumberOfIncoming.Split(";");
+                   if(numberOfIncoming.Length!= numberOfLeaving.Length) return await bot.SendTextMessageAsync(message.Chat.Id, "Введіть усі дані");
+
                 db.Update(lastRoute);
 
                 lastRoute.AddIncoming((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
@@ -213,6 +250,10 @@ namespace TgBot.Services
             {
                 var lastRoute = db.MyDrivers.Include(d => d.RoutesList).Single(d => d.DriverId == message.From.Username)
                                   .RoutesList.Last();
+                string[] numberOfLeaving = lastRoute.NumberOfLeaving.Split(";");
+                string[] numberOfIncoming = lastRoute.NumberOfIncoming.Split(";");
+                if(numberOfIncoming.Length-1!= numberOfLeaving.Length) return await bot.SendTextMessageAsync(message.Chat.Id, "Введіть усі дані");
+
                 db.Update(lastRoute);
                 lastRoute.AddLeaving((byte)Convert.ToInt16(message.Text.Split(" ")[1]));
                 lastRoute.AddTimeOfStop(DateTime.Now);
@@ -251,10 +292,11 @@ namespace TgBot.Services
             const string usage = "Usage:\n" +
                                  "/start [кодМаршрута] [кількістьПасажирів] - починає новий маршрут\n" +
                                  "/continue - позначає зупинку\n" +
+                                 "/undo видаляє останні введені дані"+
                                  "/end - скасовує маршрут\n" +
-                                 "/routes - список маршруты\n"
-                                 + "/usage - показує цей текст\n" +
-                                 "Увага! код позначається латиницею";
+                                 "/routes - список маршруты\n" + 
+                                 "/usage - показує цей текст\n" +
+                                 "Увага! Усі символи повинні вводитись латиницею";
 
             return await bot.SendTextMessageAsync(message.Chat.Id,
                 usage,

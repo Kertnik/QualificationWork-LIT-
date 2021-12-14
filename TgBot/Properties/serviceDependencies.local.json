@@ -5,12 +5,6 @@
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/tgbotserver/databases/TgBot",
       "type": "mssql.azure",
       "connectionId": "ConnectionStrings:TgBot"
-    },
-    "secrets1": {
-      "secretStore": null,
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/TgBotvault",
-      "type": "secrets.keyVault",
-      "connectionId": "VaultUri"
     }
   }
 }
