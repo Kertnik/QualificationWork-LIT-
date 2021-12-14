@@ -42,33 +42,34 @@ namespace DataClient.Forms.ViewForms
             // DriversListBox
             // 
             this.DriversListBox.FormattingEnabled = true;
-            this.DriversListBox.Location = new System.Drawing.Point(64, 43);
+            this.DriversListBox.Location = new System.Drawing.Point(12, 12);
             this.DriversListBox.Name = "DriversListBox";
-            this.DriversListBox.Size = new System.Drawing.Size(239, 31);
+            this.DriversListBox.Size = new System.Drawing.Size(338, 31);
             this.DriversListBox.TabIndex = 0;
             this.DriversListBox.SelectedIndexChanged += new System.EventHandler(this.DriverList_SelectedIndexChanged);
             // 
             // TimeChart
             // 
-            this.TimeChart.Location = new System.Drawing.Point(12, 183);
+            this.TimeChart.Location = new System.Drawing.Point(356, 12);
             this.TimeChart.Name = "TimeChart";
-            this.TimeChart.Size = new System.Drawing.Size(662, 325);
+            this.TimeChart.Size = new System.Drawing.Size(672, 496);
             this.TimeChart.TabIndex = 1;
             this.TimeChart.Text = "TimeChart";
             // 
             // routesPieChart
             // 
-            this.routesPieChart.Location = new System.Drawing.Point(378, 12);
+            this.routesPieChart.Location = new System.Drawing.Point(12, 95);
             this.routesPieChart.Name = "routesPieChart";
-            this.routesPieChart.Size = new System.Drawing.Size(238, 176);
+            this.routesPieChart.Size = new System.Drawing.Size(338, 413);
             this.routesPieChart.TabIndex = 2;
             this.routesPieChart.Text = "routesPieChart";
             // 
             // Screenshot
             // 
-            this.Screenshot.Location = new System.Drawing.Point(64, 105);
+            this.Screenshot.Font = new System.Drawing.Font("Calibri Light", 22F);
+            this.Screenshot.Location = new System.Drawing.Point(12, 49);
             this.Screenshot.Name = "Screenshot";
-            this.Screenshot.Size = new System.Drawing.Size(239, 31);
+            this.Screenshot.Size = new System.Drawing.Size(338, 40);
             this.Screenshot.TabIndex = 6;
             this.Screenshot.Text = "📷";
             this.Screenshot.UseVisualStyleBackColor = true;
@@ -77,14 +78,16 @@ namespace DataClient.Forms.ViewForms
             // DriverViewForm
             // 
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(698, 520);
+            this.ClientSize = new System.Drawing.Size(1040, 520);
             this.Controls.Add(this.Screenshot);
             this.Controls.Add(this.routesPieChart);
             this.Controls.Add(this.TimeChart);
             this.Controls.Add(this.DriversListBox);
             this.Font = new System.Drawing.Font("Calibri Light", 14F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DriverViewForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Статистика за водієм";
             this.ResumeLayout(false);
 

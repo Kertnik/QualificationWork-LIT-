@@ -136,6 +136,7 @@
             this.MinimizeBox = false;
             this.Name = "DriverChangeForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Кваліфікаційна робота";
             this.Load += new System.EventHandler(this.DriverChange_Load);
             this.MainMenu.ResumeLayout(false);

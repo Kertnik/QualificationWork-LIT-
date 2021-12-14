@@ -24,7 +24,7 @@ public partial class ChooseForm : Form
     {
         Cursor.Current = Cursors.WaitCursor;
         Hide();
-        new WaitForm(() => new RouteViewForm().ShowDialog(), "Підготовка макету").ShowDialog();
+    new RouteViewForm().ShowDialog();
         Show();
     }
 
@@ -33,7 +33,7 @@ public partial class ChooseForm : Form
     {
         Cursor.Current = Cursors.WaitCursor;
         Hide();
-        new WaitForm(() => new DriverViewForm(this).ShowDialog(), "Підготовка макету").ShowDialog();
+        new DriverViewForm().ShowDialog();
         Show();
     }
 

@@ -146,9 +146,10 @@ namespace DataClient.Forms
             this.MaximizeBox = false;
             this.Name = "ChooseForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Кваліфікаційна робота";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormChoose_FormClosed);
-             this.StatisticBox.ResumeLayout(false);
+            this.StatisticBox.ResumeLayout(false);
             this.UpdateBox.ResumeLayout(false);
             this.ResumeLayout(false);
 

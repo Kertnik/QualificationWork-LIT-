@@ -136,6 +136,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "RouteChangeForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "RouteChange";
             this.Load += new System.EventHandler(this.RouteChange_Load);
             this.MainMenu.ResumeLayout(false);

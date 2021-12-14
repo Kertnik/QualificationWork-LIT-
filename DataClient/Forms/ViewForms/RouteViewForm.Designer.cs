@@ -54,7 +54,7 @@ namespace DataClient.Forms.ViewForms
             // 
             this.TimeChart.Location = new System.Drawing.Point(12, 112);
             this.TimeChart.Name = "TimeChart";
-            this.TimeChart.Size = new System.Drawing.Size(674, 426);
+            this.TimeChart.Size = new System.Drawing.Size(855, 582);
             this.TimeChart.TabIndex = 1;
             this.TimeChart.Text = "TimeChart";
             // 
@@ -62,7 +62,7 @@ namespace DataClient.Forms.ViewForms
             // 
             this.routesPieChart.Location = new System.Drawing.Point(12, 112);
             this.routesPieChart.Name = "routesPieChart";
-            this.routesPieChart.Size = new System.Drawing.Size(674, 426);
+            this.routesPieChart.Size = new System.Drawing.Size(855, 582);
             this.routesPieChart.TabIndex = 2;
             this.routesPieChart.Text = "routesPieChart";
             // 
@@ -72,7 +72,7 @@ namespace DataClient.Forms.ViewForms
             this.RoutesListBox.FormattingEnabled = true;
             this.RoutesListBox.Location = new System.Drawing.Point(277, 12);
             this.RoutesListBox.Name = "RoutesListBox";
-            this.RoutesListBox.Size = new System.Drawing.Size(239, 31);
+            this.RoutesListBox.Size = new System.Drawing.Size(362, 31);
             this.RoutesListBox.TabIndex = 3;
             this.RoutesListBox.SelectedIndexChanged += new System.EventHandler(this.RoutesListBox_SelectedIndexChanged);
             // 
@@ -80,15 +80,16 @@ namespace DataClient.Forms.ViewForms
             // 
             this.Total.Location = new System.Drawing.Point(12, 55);
             this.Total.Name = "Total";
-            this.Total.Size = new System.Drawing.Size(674, 54);
+            this.Total.Size = new System.Drawing.Size(627, 54);
             this.Total.TabIndex = 4;
             this.Total.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Screenshot
             // 
-            this.Screenshot.Location = new System.Drawing.Point(545, 12);
+            this.Screenshot.Font = new System.Drawing.Font("Calibri Light", 50F);
+            this.Screenshot.Location = new System.Drawing.Point(645, 12);
             this.Screenshot.Name = "Screenshot";
-            this.Screenshot.Size = new System.Drawing.Size(141, 31);
+            this.Screenshot.Size = new System.Drawing.Size(222, 97);
             this.Screenshot.TabIndex = 5;
             this.Screenshot.Text = "📷";
             this.Screenshot.UseVisualStyleBackColor = true;
@@ -97,7 +98,7 @@ namespace DataClient.Forms.ViewForms
             // RouteViewForm
             // 
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(698, 550);
+            this.ClientSize = new System.Drawing.Size(879, 706);
             this.Controls.Add(this.Screenshot);
             this.Controls.Add(this.Total);
             this.Controls.Add(this.RoutesListBox);
@@ -105,8 +106,10 @@ namespace DataClient.Forms.ViewForms
             this.Controls.Add(this.TimeChart);
             this.Controls.Add(this.TypeOfRoutesListBox);
             this.Font = new System.Drawing.Font("Calibri Light", 14F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "RouteViewForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Статистика за маршрутом";
             this.ResumeLayout(false);
 

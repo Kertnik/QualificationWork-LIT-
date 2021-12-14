@@ -39,7 +39,7 @@ namespace DataClient.Forms
             // 
             this.NameOfWork.BackColor = System.Drawing.Color.Azure;
             this.NameOfWork.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.NameOfWork.Font = new System.Drawing.Font("Calibri Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.NameOfWork.Font = new System.Drawing.Font("Calibri Light", 18F);
             this.NameOfWork.Location = new System.Drawing.Point(120, 40);
             this.NameOfWork.Multiline = true;
             this.NameOfWork.Name = "NameOfWork";
@@ -74,13 +74,14 @@ namespace DataClient.Forms
             this.ClientSize = new System.Drawing.Size(884, 561);
             this.Controls.Add(this.NameOfWork);
             this.Controls.Add(this.Start);
-            this.Font = new System.Drawing.Font("Calibri", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Font = new System.Drawing.Font("Calibri", 14F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.Name = "WelcomeForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Кваліфікаційна робота";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WelcomeForm_FormClosing);
             this.ResumeLayout(false);

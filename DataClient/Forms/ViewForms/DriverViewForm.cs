@@ -9,12 +9,11 @@ namespace DataClient.Forms.ViewForms;
 
 public partial class DriverViewForm : Form
 {
-    public DriverViewForm(Form parent)
+    public DriverViewForm()
     {
         InitializeComponent();
 
-        routesPieChart.LegendLocation = LegendLocation.Right;
-        TimeChart.LegendLocation = LegendLocation.Bottom;
+        routesPieChart.LegendLocation = LegendLocation.Top;
     }
 
     protected override void OnLoad(EventArgs e)
@@ -85,7 +84,9 @@ public partial class DriverViewForm : Form
                 {
                     Title = "",
                     Values = new ChartValues<int>(arr),
-                    PointGeometry = DefaultGeometries.Square
+                    PointGeometry = DefaultGeometries.Square,
+                    FontFamily = new System.Windows.Media.FontFamily("Calibri Light"),
+                    FontSize = 20.0,
                 }
             };
             routesPieChart.Series = new SeriesCollection();
@@ -94,7 +95,9 @@ public partial class DriverViewForm : Form
                 {
                     Title = variable.Key,
                     Values = new ChartValues<double> { variable.Count() },
-                    DataLabels = true
+                    DataLabels = true,
+                    FontFamily = new System.Windows.Media.FontFamily("Calibri Light"),
+                    FontSize = 20.0,
                 });
         }
 
