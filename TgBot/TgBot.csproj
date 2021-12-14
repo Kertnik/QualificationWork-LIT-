@@ -5,6 +5,8 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>9.0</LangVersion>
 		<StartupObject>TgBot.Program</StartupObject>
+		<ApplicationIcon>ResourceManagerProjectTemplateVB.ico</ApplicationIcon>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,11 +18,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="wwwroot\**" />
-		<Content Remove="wwwroot\**" />
-		<EmbeddedResource Remove="wwwroot\**" />
-		<None Remove="wwwroot\**" />
+	  <Content Include="ResourceManagerProjectTemplateVB.ico" />
 	</ItemGroup>
+
 
 
 	<ItemGroup>

@@ -49,7 +49,7 @@
             this.toolStripRoutesComboBox});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
-            this.MainMenu.Size = new System.Drawing.Size(330, 27);
+            this.MainMenu.Size = new System.Drawing.Size(392, 27);
             this.MainMenu.TabIndex = 1;
             this.MainMenu.Text = "MainMenu";
             // 
@@ -86,7 +86,7 @@
             // 
             this.Id.Location = new System.Drawing.Point(43, 41);
             this.Id.Name = "Id";
-            this.Id.Size = new System.Drawing.Size(275, 30);
+            this.Id.Size = new System.Drawing.Size(337, 30);
             this.Id.TabIndex = 2;
             this.Id.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Id_KeyPress);
             // 
@@ -107,7 +107,7 @@
             this.StopsList.Name = "StopsList";
             this.StopsList.ReadOnly = true;
             this.StopsList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.StopsList.Size = new System.Drawing.Size(302, 344);
+            this.StopsList.Size = new System.Drawing.Size(364, 344);
             this.StopsList.TabIndex = 4;
             this.toolTip1.SetToolTip(this.StopsList, "Кожну нову станцію потрібно починати \r\nз нового рядка (Enter) ");
             this.StopsList.TextChanged += new System.EventHandler(this.StopsList_TextChanged);
@@ -123,7 +123,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(330, 433);
+            this.ClientSize = new System.Drawing.Size(392, 433);
             this.Controls.Add(this.StopsList);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.Id);

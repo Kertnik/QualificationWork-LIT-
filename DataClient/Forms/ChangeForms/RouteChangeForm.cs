@@ -83,7 +83,7 @@ public partial class RouteChangeForm : Form
                 {
                     RouteId = Id.Text,
                     Stops = string.Join(";",
-                        StopsList.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+                        StopsList.Text.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                 });
                 await db.SaveChangesAsync();
             }

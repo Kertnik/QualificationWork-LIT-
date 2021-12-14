@@ -47,7 +47,7 @@ public partial class RouteViewForm : Form
             routesPieChart.LegendLocation = LegendLocation.Right;
             TypeOfRoutesListBox.DataSource = binding;
         }
-
+        TimeChart.AxisY.Clear();
         TimeChart.AxisY.Add(new Axis
         {
             Title = "Кількість"
@@ -74,8 +74,12 @@ public partial class RouteViewForm : Form
             var binding = new BindingSource();
 
             binding.Add(new ComboboxItem("Choose", null));
-            foreach (var d in route.MyCurRoutes)
-                binding.Add(new ComboboxItem(d.Day.ToString("dd/mm hh:MM:ss"), d.RecordID));
+            for (int i = 0; i < route.MyCurRoutes.Count; i++)
+            {
+                var d = route.MyCurRoutes[i];
+                binding.Add(new ComboboxItem(d.Day.ToString("dd/MM HH:mm:ss"), d.RecordID));
+            }
+
             RoutesListBox.DataSource = binding;
             RoutesListBox.Enabled = true;
         }
@@ -92,7 +96,7 @@ public partial class RouteViewForm : Form
             {
                 var route = db.MyRoutes.Find(TypeOfRoutesListBox.SelectedItem.ToString());
                 double[] arr = new double[route.Stops.Split(';').Length - 1];
-                foreach (var times in route.MyCurRoutes.Select(d => (d.Day + ";" + d.TimeOfStops).Split(';')
+                foreach (var times in route.MyCurRoutes.Where(p=>p.NumberOfIncoming.Split(';').Length==arr.Length+1).Select(d => (d.Day + ";" + d.TimeOfStops).Split(';')
                             .Select(Convert.ToDateTime).ToList()))
                     for (int i = 1; i < arr.Length + 1; i++)
                     {
