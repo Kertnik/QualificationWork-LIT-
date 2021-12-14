@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "mssql1": {
-      "secretStore": "AzureKeyVault",
+      "secretStore": null,
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/tgbotserver/databases/TgBot",
       "type": "mssql.azure",
-      "connectionId": "ConnectionStrings:TgBot"
+      "connectionId": "ConnectionStrings:TgDB"
     }
   }
 }

@@ -1,13 +1,51 @@
-t=2021-12-14T08:24:30+0200 lvl=info msg="no configuration paths supplied"
-t=2021-12-14T08:24:30+0200 lvl=info msg="using configuration at default config path" path=C:\\Users\\Nikita/.ngrok2/ngrok.yml
-t=2021-12-14T08:24:30+0200 lvl=info msg="open config file" path=C:\\Users\\Nikita\\.ngrok2\\ngrok.yml err=nil
-t=2021-12-14T08:24:30+0200 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040
-t=2021-12-14T08:24:30+0200 lvl=info msg="tunnel session started" obj=tunnels.session
-t=2021-12-14T08:24:30+0200 lvl=info msg="client session established" obj=csess id=6efbfc1fe23c
-t=2021-12-14T08:24:31+0200 lvl=info msg="started tunnel" obj=tunnels name="command_line (http)" addr=http://localhost:31623 url=http://1ce4-46-98-145-98.ngrok.io
-t=2021-12-14T08:24:31+0200 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:31623 url=https://1ce4-46-98-145-98.ngrok.io
-t=2021-12-14T08:26:33+0200 lvl=info msg="Got update major command" obj=consoleui
-t=2021-12-14T08:26:35+0200 lvl=info msg="Got quit command" obj=consoleui
-t=2021-12-14T08:26:35+0200 lvl=info msg="received stop request" obj=app stopReq="{err:<nil> restart:false}"
-t=2021-12-14T08:26:35+0200 lvl=info msg="session closing" obj=tunnels.session err=nil
-t=2021-12-14T08:26:35+0200 lvl=info msg="accept failed" obj=csess id=6efbfc1fe23c err="reconnecting session closed"
+NAME:
+   http - start an HTTP tunnel
+
+USAGE:
+   ngrok http [command options] [arguments...]
+
+DESCRIPTION:
+   Starts a tunnel listening for HTTP/HTTPS traffic with a specific hostname.
+   The HTTP Host header on incoming public requests is inspected to
+   determine which tunnel it matches.
+
+   HTTPS endpoints terminate TLS traffic at the ngrok server using the
+   ngrok.io certificates. The decrypted, HTTP traffic is then forwarded
+   through the secure tunnel and then to your local server. If you don't want
+   your TLS traffic to terminate at the ngrok server, use a TLS or TCP tunnel.
+
+EXAMPLES:
+   ngrok http 8080                      # forward ngrok.io subdomain to port 80
+   ngrok http example.com:9000          # forward traffic to example.com:9000
+   ngrok http -subdomain=bar 80         # request subdomain name: 'bar.ngrok.io'
+   ngrok http -hostname=ex.com 1234     # request tunnel 'ex.com' (DNS CNAME)
+   ngrok http -auth='falken:joshua' 80  # enforce basic auth on tunnel endpoint
+   ngrok http -host-header=ex.com 80    # rewrite the Host header to 'ex.com'
+   ngrok http file:///var/log           # serve local files in /var/log
+   ngrok http https://localhost:8443    # forward to a local https server
+
+OPTIONS:
+   --auth 		enforce basic auth on tunnel endpoint, 'user:password'
+   --authtoken 		ngrok.com authtoken identifying a user
+   --bind-tls "both"	listen for http, https or both: true/false/both
+   --config		path to config files; they are merged if multiple
+   --host-header 	set Host header; if 'rewrite' use local address hostname
+   --hostname 		host tunnel on custom hostname (requires DNS CNAME)
+   --inspect		enable/disable http introspection
+   --log "false"	path to log file, 'stdout', 'stderr' or 'false'
+   --log-format "term"	log record format: 'term', 'logfmt', 'json'
+   --log-level "info"	logging level
+   --region 		ngrok server region [us, eu, au, ap, sa, jp, in] (default: us)
+   --subdomain 		host tunnel on a custom subdomain
+
+ERROR:  You must specify a single argument: a port or address to tunnel to.
+ERROR:  You specified 0 arguments: []
+ERROR:  For example, to expose port 80, run 'ngrok http 80'.
+t=2021-12-14T19:22:50+0200 lvl=info msg="no configuration paths supplied"
+t=2021-12-14T19:22:50+0200 lvl=info msg="using configuration at default config path" path=C:\\Users\\Nikita/.ngrok2/ngrok.yml
+t=2021-12-14T19:22:50+0200 lvl=info msg="open config file" path=C:\\Users\\Nikita\\.ngrok2\\ngrok.yml err=nil
+t=2021-12-14T19:22:50+0200 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040
+t=2021-12-14T19:22:51+0200 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2021-12-14T19:22:51+0200 lvl=info msg="client session established" obj=csess id=9e967729700c
+t=2021-12-14T19:22:51+0200 lvl=info msg="started tunnel" obj=tunnels name="command_line (http)" addr=http://localhost:31623 url=http://a030-46-98-145-98.ngrok.io
+t=2021-12-14T19:22:51+0200 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:31623 url=https://a030-46-98-145-98.ngrok.io
