@@ -9,7 +9,7 @@ namespace DataClient.Forms.ViewForms;
 
 public partial class RouteViewForm : Form
 {
-   
+
 
 
     public RouteViewForm()
@@ -21,6 +21,7 @@ public partial class RouteViewForm : Form
     {
         base.OnLoad(e);
         Cursor = Cursors.WaitCursor;
+        Number.Enabled = false;
         using (var db = new TgBotContext())
         {
             routesPieChart.Font = new Font(FontFamily.Families.First(c => c.Name == "Calibri Light"), 20);
@@ -63,11 +64,13 @@ public partial class RouteViewForm : Form
             RoutesListBox.Enabled = false;
             OnLoad(new EventArgs());
             routesPieChart.Visible = true;
+            Number.Enabled = false;
             return;
         }
 
-        RoutesListBox.Enabled = false;
         routesPieChart.Visible = false;
+        Number.Enabled = true;
+        Number.Checked = false;
         using (var db = new TgBotContext())
         {
             var route = db.MyRoutes.Find(TypeOfRoutesListBox.SelectedItem.ToString());
@@ -88,6 +91,7 @@ public partial class RouteViewForm : Form
         Cursor = Cursors.Default;
     }
 
+
     void RoutesListBox_SelectedIndexChanged(object sender, EventArgs e)
     {
         using (var db = new TgBotContext())
@@ -96,25 +100,32 @@ public partial class RouteViewForm : Form
             {
                 var route = db.MyRoutes.Find(TypeOfRoutesListBox.SelectedItem.ToString());
                 double[] arr = new double[route.Stops.Split(';').Length - 1];
-                foreach (var times in route.MyCurRoutes.Where(p=>p.NumberOfIncoming.Split(';').Length==arr.Length+1).Select(d => (d.Day + ";" + d.TimeOfStops).Split(';')
-                            .Select(Convert.ToDateTime).ToList()))
+                var listOfFinshed = route.MyCurRoutes.Where(p => p.NumberOfIncoming.Split(';').Length == arr.Length + 1);
+                foreach (var curRoute in listOfFinshed)
+                {
+
+                    var times = (curRoute.Day + ";" + curRoute.TimeOfStops).Split(';').Select(x => Convert.ToDateTime(x)).ToList();
+
                     for (int i = 1; i < arr.Length + 1; i++)
                     {
+
                         arr[i - 1] += (times[i] - times[i - 1]).TotalMinutes;
                     }
+                }
 
                 TimeChart.Series = new SeriesCollection();
                 string[] stops = route.Stops.Split(';');
                 for (int i = 0; i < arr.Length; i++)
                 {
                     stops[i] += "->" + stops[i + 1];
-                    arr[i] = Math.Round(arr[i] / route.MyCurRoutes.Count, 2);
+                    arr[i] = Math.Round(arr[i] / listOfFinshed.Count(), 2);
                 }
 
                 Total.Text = "Усього маршрутів:" + route.MyCurRoutes.Count + "\n Середня тривалість маршруту (хв):" +
                              arr.Sum();
                 TimeChart.AxisY.Clear();
                 TimeChart.AxisX.Clear();
+
                 TimeChart.Series.Add(new LineSeries
                 {
                     Title = "Середній час",
@@ -122,7 +133,8 @@ public partial class RouteViewForm : Form
                 });
                 TimeChart.AxisY.Add(new Axis
                 {
-                    Title = "Час у хвилинах"
+                    Title = "Час у хвилинах",
+                    MinValue = 0
                 });
                 TimeChart.AxisX.Add(new Axis
                 {
@@ -130,28 +142,44 @@ public partial class RouteViewForm : Form
                     Labels = stops,
                     ShowLabels = false
                 });
+                Number.Enabled = true;
             }
             else
             {
+                Number.Enabled = false;
+                Number.Checked=false;
                 var route = db.MyCurRoutes.Find(((ComboboxItem)RoutesListBox.SelectedItem).Value);
+                var arrIncoming = route.NumberOfIncoming.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
+                var arrLeaving = route.NumberOfLeaving.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
+                int[] arrTotal = new int[arrIncoming.Count()];
+                for (int i = 0; i < arrTotal.Length; i++)
+                {
+                    arrTotal[i] = (i == 0 ? 0 : arrTotal[i - 1]) + arrIncoming[i] - arrLeaving[i];
 
-                var arr = route.NumberOfLeaving.Split(';')
-                               .Select(x => Convert.ToInt32(x));
-                Total.Text = "Усього пасажирів:" + arr.Sum() + "\n" + "Водій:" + route.MyDriver.Name +
+                }
+                Total.Text = "Усього пасажирів:" + arrIncoming.Sum() + "\n" + "Водій:" + route.MyDriver.Name +
                              $" ({route.MyDriver.DriverId})";
+
 
                 TimeChart.Series = new SeriesCollection
                 {
                     new LineSeries
                     {
-                        Values = new ChartValues<int>(arr),
+                        Values = new ChartValues<int>(arrLeaving),
                         Title = "Кількість вийшовших пасажирів"
                     },
                     new LineSeries
                     {
                         Values =
-                            new ChartValues<int>(route.NumberOfIncoming.Split(';').Select(x => Convert.ToInt32(x))),
+                            new ChartValues<int>(arrIncoming),
                         Title = "Кількість нових пасажирів"
+                    }
+                    ,
+                    new LineSeries
+                    {
+                        Values =
+                            new ChartValues<int>(arrTotal),
+                        Title = "Загальна кількість пасажирів"
                     }
                 };
             }
@@ -193,5 +221,58 @@ public partial class RouteViewForm : Form
         {
             return Text;
         }
+    }
+
+    private void Number_CheckedChanged(object sender, EventArgs e)
+    {
+        using (var db = new TgBotContext())
+        {
+            if (((ComboboxItem)RoutesListBox.SelectedItem).Value == null)
+            {
+                TimeChart.Series.Clear();
+                if (Number.Checked == true)
+                {
+                    var route = db.MyRoutes.Find(TypeOfRoutesListBox.SelectedItem.ToString());
+                    double[] totalPassangersArr = new double[route.Stops.Split(';').Length];
+                    var listOfFinished = route.MyCurRoutes.Where(p => p.NumberOfIncoming.Split(';').Length == totalPassangersArr.Length);
+                    foreach (var curRoute in listOfFinished)
+                    {
+                        var incomers = curRoute.NumberOfIncoming.Split(';');
+                        var leavers = curRoute.NumberOfLeaving.Split(';');
+                        var locPassangers=new double[leavers.Length];
+                        for (int i = 1; i < totalPassangersArr.Length + 1; i++)
+                        {
+                            locPassangers[i - 1]= (i == 1 ? 0 : locPassangers[i - 2]) + Convert.ToInt32(incomers[i - 1]) - Convert.ToInt32(leavers[i - 1]);
+
+                            totalPassangersArr[i - 1] += (i == 1 ? 0 : locPassangers[i - 2]) + Convert.ToInt32(incomers[i - 1]) - Convert.ToInt32(leavers[i - 1]);
+
+                        }
+                    }
+                    for (int i = 0; i < totalPassangersArr.Length; i++)
+                    {
+                        totalPassangersArr[i] = Math.Round(totalPassangersArr[i] / listOfFinished.Count(), 2);
+                    }
+                    TimeChart.AxisY.Clear(); TimeChart.Series.Add(new LineSeries
+                    {
+                        Title = "Загальна кількість пасажирів",
+                        Values = new ChartValues<double>(totalPassangersArr)
+                    });
+                    TimeChart.AxisY.Add(new Axis
+                    {
+                        Title = "Середня кількість",
+                        MinValue = 0
+                    });
+
+                }
+                else
+                {
+                    RoutesListBox_SelectedIndexChanged(null, null);
+                }
+            }
+
+        }
+
+
+
     }
 }

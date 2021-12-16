@@ -39,6 +39,7 @@ namespace DataClient.Forms.ViewForms
             this.Total = new System.Windows.Forms.Label();
             this.Screenshot = new System.Windows.Forms.Button();
             this.SaveScreenshot = new System.Windows.Forms.SaveFileDialog();
+            this.Number = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // TypeOfRoutesListBox
@@ -78,27 +79,39 @@ namespace DataClient.Forms.ViewForms
             // 
             // Total
             // 
-            this.Total.Location = new System.Drawing.Point(12, 55);
+            this.Total.Location = new System.Drawing.Point(72, 55);
             this.Total.Name = "Total";
-            this.Total.Size = new System.Drawing.Size(627, 54);
+            this.Total.Size = new System.Drawing.Size(567, 54);
             this.Total.TabIndex = 4;
             this.Total.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Screenshot
             // 
-            this.Screenshot.Font = new System.Drawing.Font("Calibri Light", 50F);
+            this.Screenshot.Font = new System.Drawing.Font("Calibri Light", 25F);
             this.Screenshot.Location = new System.Drawing.Point(645, 12);
             this.Screenshot.Name = "Screenshot";
-            this.Screenshot.Size = new System.Drawing.Size(222, 97);
+            this.Screenshot.Size = new System.Drawing.Size(222, 52);
             this.Screenshot.TabIndex = 5;
             this.Screenshot.Text = "📷";
             this.Screenshot.UseVisualStyleBackColor = true;
             this.Screenshot.Click += new System.EventHandler(this.Screenshot_Click);
             // 
+            // Number
+            // 
+            this.Number.AutoSize = true;
+            this.Number.Location = new System.Drawing.Point(663, 70);
+            this.Number.Name = "Number";
+            this.Number.Size = new System.Drawing.Size(187, 27);
+            this.Number.TabIndex = 6;
+            this.Number.Text = "Змінити на кількість";
+            this.Number.UseVisualStyleBackColor = true;
+            this.Number.CheckedChanged += new System.EventHandler(this.Number_CheckedChanged);
+            // 
             // RouteViewForm
             // 
             this.BackColor = System.Drawing.Color.Azure;
             this.ClientSize = new System.Drawing.Size(879, 706);
+            this.Controls.Add(this.Number);
             this.Controls.Add(this.Screenshot);
             this.Controls.Add(this.Total);
             this.Controls.Add(this.RoutesListBox);
@@ -112,6 +125,7 @@ namespace DataClient.Forms.ViewForms
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Статистика за маршрутом";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -124,5 +138,6 @@ namespace DataClient.Forms.ViewForms
         private Label Total;
         private Button Screenshot;
         private SaveFileDialog SaveScreenshot;
+        private CheckBox Number;
     }
 }

@@ -46,7 +46,7 @@ public partial class DriverViewForm : Form
 
         TimeChart.AxisY.Add(new Axis
         {
-            Title = "Кількість маршрутів на день"
+            Title = "Кількість маршрутів на день",MinValue=0
         });
         DefaultMarkup();
         Cursor = Cursors.Default;
@@ -64,7 +64,6 @@ public partial class DriverViewForm : Form
         Cursor = Cursors.WaitCursor;
         var now = DateTime.Now.Date;
         int[] arr = new int[30];
-
         using (var db = new TgBotContext())
         {
             var driver = db.MyDrivers.Find(((string)DriversListBox.SelectedItem).Split('(')[1].Replace(")", ""));
