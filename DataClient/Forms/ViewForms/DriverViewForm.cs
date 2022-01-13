@@ -75,7 +75,7 @@ public partial class DriverViewForm : Form
             }
 
             foreach (var variable in driver.MyCurRoutes)
-                arr[29 - (int)(DateTime.Now.Date - variable.Day.Date).TotalDays]++;
+                arr[30 - (int)(DateTime.Now.Date - variable.Day.Date).TotalDays]++;
 
             TimeChart.Series = new SeriesCollection
             {

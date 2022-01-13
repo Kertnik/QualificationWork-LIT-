@@ -9,9 +9,6 @@ namespace DataClient.Forms.ViewForms;
 
 public partial class RouteViewForm : Form
 {
-
-
-
     public RouteViewForm()
     {
         InitializeComponent();
@@ -30,6 +27,7 @@ public partial class RouteViewForm : Form
             binding.Add("Choose");
             int[] arr = new int[routes.Count];
             routesPieChart.Series = new SeriesCollection();
+            int count = 0;
             foreach (var t in routes)
             {
                 binding.Add(t.RouteId);
@@ -42,9 +40,10 @@ public partial class RouteViewForm : Form
                     FontSize = 20.0,
                     Values = new ChartValues<int> { t.MyCurRoutes.Count }
                 });
+                count += t.MyCurRoutes.Count;
             }
 
-            Total.Text = "Усього маршрутів:" + routes.Count;
+            Total.Text = "Усього маршрутів:" + count;
             routesPieChart.LegendLocation = LegendLocation.Right;
             TypeOfRoutesListBox.DataSource = binding;
         }
@@ -147,7 +146,7 @@ public partial class RouteViewForm : Form
             else
             {
                 Number.Enabled = false;
-                Number.Checked=false;
+                Number.Checked = false;
                 var route = db.MyCurRoutes.Find(((ComboboxItem)RoutesListBox.SelectedItem).Value);
                 var arrIncoming = route.NumberOfIncoming.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
                 var arrLeaving = route.NumberOfLeaving.Split(';').Select(x => Convert.ToInt32(x)).ToArray();
@@ -239,10 +238,10 @@ public partial class RouteViewForm : Form
                     {
                         var incomers = curRoute.NumberOfIncoming.Split(';');
                         var leavers = curRoute.NumberOfLeaving.Split(';');
-                        var locPassangers=new double[leavers.Length];
+                        var locPassangers = new double[leavers.Length];
                         for (int i = 1; i < totalPassangersArr.Length + 1; i++)
                         {
-                            locPassangers[i - 1]= (i == 1 ? 0 : locPassangers[i - 2]) + Convert.ToInt32(incomers[i - 1]) - Convert.ToInt32(leavers[i - 1]);
+                            locPassangers[i - 1] = (i == 1 ? 0 : locPassangers[i - 2]) + Convert.ToInt32(incomers[i - 1]) - Convert.ToInt32(leavers[i - 1]);
 
                             totalPassangersArr[i - 1] += (i == 1 ? 0 : locPassangers[i - 2]) + Convert.ToInt32(incomers[i - 1]) - Convert.ToInt32(leavers[i - 1]);
 
