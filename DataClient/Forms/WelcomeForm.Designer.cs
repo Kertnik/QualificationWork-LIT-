@@ -33,6 +33,7 @@ namespace DataClient.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WelcomeForm));
             this.NameOfWork = new System.Windows.Forms.TextBox();
             this.Start = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // NameOfWork
@@ -40,7 +41,7 @@ namespace DataClient.Forms
             this.NameOfWork.BackColor = System.Drawing.Color.Azure;
             this.NameOfWork.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.NameOfWork.Font = new System.Drawing.Font("Calibri Light", 18F);
-            this.NameOfWork.Location = new System.Drawing.Point(120, 40);
+            this.NameOfWork.Location = new System.Drawing.Point(122, 112);
             this.NameOfWork.Multiline = true;
             this.NameOfWork.Name = "NameOfWork";
             this.NameOfWork.ReadOnly = true;
@@ -57,7 +58,7 @@ namespace DataClient.Forms
             this.Start.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.Start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Start.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.Start.Location = new System.Drawing.Point(300, 411);
+            this.Start.Location = new System.Drawing.Point(300, 468);
             this.Start.Name = "Start";
             this.Start.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.Start.Size = new System.Drawing.Size(280, 120);
@@ -66,12 +67,24 @@ namespace DataClient.Forms
             this.Start.UseVisualStyleBackColor = false;
             this.Start.Click += new System.EventHandler(this.Start_Click);
             // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Calibri Light", 18F);
+            this.label1.Location = new System.Drawing.Point(145, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(627, 100);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Дніпровський науковий ліцей інформаційних технологій\r\nДніпровської міської ради \r" +
+    "\n";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // WelcomeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(884, 561);
+            this.ClientSize = new System.Drawing.Size(884, 615);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.NameOfWork);
             this.Controls.Add(this.Start);
             this.Font = new System.Drawing.Font("Calibri", 14F);
@@ -93,5 +106,6 @@ namespace DataClient.Forms
 
         private TextBox NameOfWork;
         private Button Start;
+        private Label label1;
     }
 }

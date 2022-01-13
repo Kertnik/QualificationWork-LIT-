@@ -16,8 +16,8 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>C:\Users\Nikita\Desktop\DataClient\</PublishUrl>
-    <Install>false</Install>
+    <PublishUrl>C:\Users\Nikita\Desktop\Волошин Микита 11-Б-2 Сбір даних засобами «Telegram» та їх візуалізація, засобами С#\Programs\DataClient\</PublishUrl>
+    <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
@@ -29,11 +29,11 @@
     <TargetCulture>uk</TargetCulture>
     <ProductName>Кваліфікаційна робота. Частина ІІ</ProductName>
     <PublisherName>Nikita Voloshin</PublisherName>
-    <AutorunEnabled>true</AutorunEnabled>
     <DisallowUrlActivation>true</DisallowUrlActivation>
     <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>1.2.1.%2a</ApplicationVersion>
+    <ApplicationVersion>1.3.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
